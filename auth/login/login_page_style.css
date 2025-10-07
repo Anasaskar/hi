@@ -244,48 +244,6 @@
 }
 
 
-/* Footer Styling */
-.simple-footer {
-    width: 100%;
-    text-align: center;
-    padding: 30px 0 10px;
-    border-top: 1px solid #e0e0e0;
-    /* Subtle separator */
-    color: #777;
-    font-size: 0.9em;
-}
-
-.simple-footer .footer-links {
-    margin-bottom: 15px;
-}
-
-.simple-footer .footer-links a {
-    color: #777;
-    text-decoration: none;
-    margin: 0 15px;
-    transition: color 0.3s ease;
-}
-
-.simple-footer .footer-links a:hover {
-    color: #a7f300;
-    /* Lemon green accent */
-}
-
-.simple-footer .social-icons {
-    margin-top: 15px;
-}
-
-.simple-footer .social-icons a {
-    color: #777;
-    font-size: 1.5em;
-    margin: 0 10px;
-    transition: color 0.3s ease;
-}
-
-.simple-footer .social-icons a:hover {
-    color: #a7f300;
-    /* Lemon green accent */
-}
 
 
 /* Responsive Design */

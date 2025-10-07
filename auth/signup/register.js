@@ -27,7 +27,7 @@ registerForm.addEventListener('submit', async function (e) {
         const data = await res.json();
         if (res.ok) {
             showToast(successToast);
-            setTimeout(() => { window.location.href = '/'; }, 900);
+            setTimeout(() => { window.location.href = '/dashboard'; }, 900);
         } else {
             errorToast.querySelector('span').textContent = data.message || 'فشل التسجيل';
             showToast(errorToast);

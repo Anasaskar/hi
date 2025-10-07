@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VirtuFit - لوحة التحكم</title>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="/dashboard-page/dashboard_page_style.css">
+</head>
+
+<body>
+    <div class="page-wrapper dashboard-page">
+        <header class="dashboard-header">
+            <div class="container">
+                <div class="logo">VirtuFit</div>
+                <nav class="dashboard-nav">
+                    <ul>
+                        <li><a href="#" class="active">Dashboard</a></li>
+                        <li><a href="#">Try-On</a></li>
+                        <li><a href="#">Gallery</a></li>
+                        <li><a href="#">Pricing</a></li>
+                        <li><a href="#" class="logout-btn">تسجيل الخروج</a></li>
+                    </ul>
+                </nav>
+                <div class="user-info">
+                    <i class="fas fa-user-circle"></i>
+                    <span>...</span>
+                </div>
+                <button class="nav-toggle" aria-label="Toggle navigation">&#9776;</button>
+            </div>
+        </header>
+
+        <main class="dashboard-content container">
+            <section class="dashboard-hero">
+                <h1>مرحبًا! ابدأ تجربة تركيب التيشيرت على الموديلات الآن.</h1>
+                <button class="button primary">ابدأ تجربة جديدة</button>
+            </section>
+
+            <section class="tryon-section">
+                <div class="tryon-form-card">
+                    <h2>نموذج AI Try-On</h2>
+                    <form id="tryOnForm">
+                        <div class="form-group">
+                            <label for="modelSelect">اختر الموديل:</label>
+                            <div class="model-selection-wrapper">
+                                <select id="modelSelect" class="custom-select" required>
+                                    <option value="">-- اختر موديل --</option>
+                                </select>
+                                <div id="selectedModelPreview" class="model-preview hidden">
+                                    <img src="" alt="Selected Model" class="model-image">
+                                    <span class="model-name"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>ارفع التيشيرت (PNG/JPG):</label>
+                            <div class="file-upload-area" id="fileUploadArea">
+                                <input type="file" id="tshirtUpload" accept=".png,.jpg,.jpeg" hidden required>
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <p>اسحب وأفلت أو <span class="browse-files">اختر من الملفات</span></p>
+                                <div id="filePreview" class="file-preview hidden">
+                                    <img src="" alt="T-shirt Preview">
+                                    <span class="file-name"></span>
+                                    <button type="button" class="remove-file-btn"><i class="fas fa-times"></i></button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>خيارات الخلفية:</label>
+                            <div class="background-options">
+                                <label><input type="radio" name="background" value="white" checked> أبيض</label>
+                                <label><input type="radio" name="background" value="studio"> استوديو</label>
+                                <label><input type="radio" name="background" value="street"> شارع</label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="notes">تعليمات إضافية (اختياري):</label>
+                            <textarea id="notes" name="notes" rows="3"
+                                placeholder="مثال: ارفع التيشيرت للأعلى قليلاً، خلفية بيضاء ناعمة..."></textarea>
+                        </div>
+
+                        <button type="submit" class="button primary process-button">
+                            <span class="button-text">ابدأ المعالجة</span>
+                            <span class="loading-spinner hidden"><i class="fas fa-spinner fa-spin"></i></span>
+                        </button>
+                    </form>
+                </div>
+
+                <div class="previous-orders-card">
+                    <h2>الطلبات السابقة</h2>
+                    <div id="previousOrdersGrid" class="orders-grid">
+                        <div class="order-item skeleton">
+                            <div class="skeleton-image"></div>
+                            <div class="skeleton-text line-1"></div>
+                            <div class="skeleton-text line-2"></div>
+                        </div>
+                        <div class="order-item skeleton">
+                            <div class="skeleton-image"></div>
+                            <div class="skeleton-text line-1"></div>
+                            <div class="skeleton-text line-2"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer class="simple-footer">
+            <div class="footer-links">
+                <a href="#">الأسعار</a>
+                <a href="#">الخصوصية</a>
+                <a href="#">الشروط</a>
+            </div>
+            <p>&copy; 2023 VirtuFit. جميع الحقوق محفوظة.</p>
+            <div class="social-icons">
+                <a href="#" target="_blank" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                <a href="#" target="_blank" aria-label="Behance"><i class="fab fa-behance"></i></a>
+                <a href="#" target="_blank" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+            </div>
+        </footer>
+
+        <div class="toast-notification success hidden" id="processingSuccessToast">
+            <i class="fas fa-check-circle"></i>
+            <span>تم إرسال طلبك بنجاح!</span>
+        </div>
+        <div class="toast-notification error hidden" id="processingErrorToast">
+            <i class="fas fa-exclamation-circle"></i>
+            <span>فشل إرسال الطلب. يرجى المحاولة مرة أخرى.</span>
+        </div>
+        <div class="toast-notification error hidden" id="validationErrorToast">
+            <i class="fas fa-exclamation-circle"></i>
+            <span>يرجى ملء جميع الحقول المطلوبة.</span>
+        </div>
+    </div>
+
+    <script src="/dashboard-page/dashboard_page_script.js"></script>
+</body>
+
+</html>

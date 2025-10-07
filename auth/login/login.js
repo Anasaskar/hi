@@ -21,8 +21,8 @@ loginForm.addEventListener('submit', async function (e) {
         const data = await res.json();
         if (res.ok) {
             showToast(successToast);
-            // بعد تسجيل الدخول ممكن تعيد التوجيه:
-            setTimeout(() => { window.location.href = '/'; }, 800);
+            // التوجيه إلى لوحة التحكم بعد تسجيل الدخول
+            setTimeout(() => { window.location.href = '/dashboard'; }, 800);
         } else {
             errorToast.querySelector('span').textContent = data.message || 'فشل تسجيل الدخول';
             showToast(errorToast);

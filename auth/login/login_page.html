@@ -79,7 +79,7 @@
             </div>
         </footer>
     </div>
-    <script src="login.js"></script>
+    <script src="/auth/login/login.js"></script>
 
     <script>
         // Nav toggle (same behavior as on index.html)
@@ -92,35 +92,8 @@
             });
         }
 
-        // Example for showing toast notifications (for demonstration)
-        const loginForm = document.querySelector('.login-form');
-        const successToast = document.getElementById('loginSuccessToast');
-        const errorToast = document.getElementById('loginErrorToast');
 
-        loginForm.addEventListener('submit', function (e) {
-            e.preventDefault(); // Prevent default form submission
 
-            // Simulate a login attempt
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-
-            if (email === 'test@example.com' && password === 'password') {
-                showToast(successToast);
-                // In a real app, redirect or do something else
-            } else {
-                showToast(errorToast);
-            }
-        });
-
-        function showToast(toastElement) {
-            toastElement.classList.remove('hidden');
-            toastElement.classList.add('visible');
-
-            setTimeout(() => {
-                toastElement.classList.remove('visible');
-                toastElement.classList.add('hidden');
-            }, 3000); // Hide after 3 seconds
-        }
     </script>
 </body>
 
