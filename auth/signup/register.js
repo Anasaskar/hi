@@ -27,7 +27,8 @@ registerForm.addEventListener('submit', async function (e) {
         const data = await res.json();
         if (res.ok) {
             showToast(successToast);
-            setTimeout(() => { window.location.href = '/dashboard'; }, 900);
+            // Inform user to check email for confirmation and redirect to a page
+            setTimeout(() => { window.location.href = `/auth/confirm/confirm_page.html?email=${encodeURIComponent(email)}`; }, 900);
         } else {
             errorToast.querySelector('span').textContent = data.message || 'فشل التسجيل';
             showToast(errorToast);
