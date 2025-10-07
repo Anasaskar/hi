@@ -1,5 +1,5 @@
-/* General Body and Page Wrapper */
-body {
+/* General Page Wrapper (scoped) */
+.login-page-body {
     font-family: 'IBM Plex Sans Arabic', sans-serif;
     background: linear-gradient(135deg, #f0f2f5 0%, #e0e5ec 100%);
     /* Light gray gradient background */

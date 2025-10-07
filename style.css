@@ -9,6 +9,7 @@ body {
     /* Right-to-left for Arabic */
     text-align: right;
     line-height: 1.6;
+    padding-top: 70px; /* space for fixed header so content isn't hidden */
 }
 
 .container {
@@ -40,8 +41,10 @@ h2 {
     background-color: #fff;
     padding: 15px 0;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-    position: sticky;
+    position: fixed; /* keep header fixed at the very top */
     top: 0;
+    left: 0;
+    right: 0;
     z-index: 1000;
 }
 
@@ -49,6 +52,14 @@ h2 {
     display: flex;
     justify-content: space-between;
     align-items: center;
+}
+
+/* Header-specific login button (compact variant of .button.primary) */
+.header-login {
+    padding: 8px 18px;
+    border-radius: 22px;
+    font-size: 1em;
+    line-height: 1;
 }
 
 .logo {

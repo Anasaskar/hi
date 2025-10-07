@@ -7,10 +7,26 @@
     <title>Pricing Page</title>
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;600;700&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="pricing_page_style.css">
+    <link rel="stylesheet" href="/pricing-page/pricing_page_style.css">
+        <link rel="stylesheet" href="../style.css">
+
 </head>
 
 <body>
+    <header class="main-header">
+        <div class="container">
+            <div class="logo">VirtuFit</div>
+            <nav class="main-nav">
+                <ul>
+                    <li><a href="/">الرئيسية</a></li>
+                    <li><a href="/pricing-page">الأسعار</a></li>
+                    <li><a href="/contact-page">تواصل معنا</a></li>
+                </ul>
+            </nav>
+            <button class="nav-toggle" aria-label="Toggle navigation">&#9776;</button>
+            <a href="/login" class="button primary header-login">تسجيل الدخول</a>
+        </div>
+    </header>
     <div class="pricing-container">
         <h1>الأسعار</h1>
 
@@ -46,3 +62,15 @@
 </body>
 
 </html>
+
+<script>
+    // Nav toggle for pricing page (same as index.html)
+    const navToggle = document.querySelector('.nav-toggle');
+    const mainNav = document.querySelector('.main-nav');
+
+    if (navToggle && mainNav) {
+        navToggle.addEventListener('click', () => {
+            mainNav.classList.toggle('active');
+        });
+    }
+</script>
