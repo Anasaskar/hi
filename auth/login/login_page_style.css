@@ -1,0 +1,353 @@
+/* General Body and Page Wrapper */
+body {
+    font-family: 'IBM Plex Sans Arabic', sans-serif;
+    background: linear-gradient(135deg, #f0f2f5 0%, #e0e5ec 100%);
+    /* Light gray gradient background */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    color: #333;
+    direction: rtl;
+    /* Right-to-left for Arabic */
+    text-align: right;
+    line-height: 1.6;
+}
+
+.page-wrapper {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    min-height: 100vh;
+    width: 100%;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+/* Header Styling */
+.simple-header {
+    width: 100%;
+    text-align: center;
+    padding: 20px 0;
+}
+
+.simple-header .logo {
+    font-size: 2.5em;
+    font-weight: 700;
+    color: #a7f300;
+    /* Lemon green accent */
+    margin-bottom: 20px;
+}
+
+/* Login Main Section & Card */
+.login-main {
+    flex-grow: 1;
+    /* Allows it to take available space */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    position: relative;
+    /* For toast notifications positioning */
+}
+
+.login-card {
+    background-color: #fff;
+    border-radius: 20px;
+    /* 2xl border radius */
+    padding: 40px;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 450px;
+    /* Max width for the card */
+    text-align: center;
+    opacity: 0;
+    /* Hidden by default for animation */
+    transform: translateY(30px);
+    /* Starts slightly below */
+    animation: fadeInSlideUp 0.7s ease-out forwards;
+    /* Animation */
+}
+
+@keyframes fadeInSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+
+.login-card h2 {
+    font-size: 2.2em;
+    color: #2c3e50;
+    margin-bottom: 10px;
+}
+
+.login-card .subtitle {
+    font-size: 1.05em;
+    color: #666;
+    margin-bottom: 30px;
+}
+
+.login-form {
+    width: 100%;
+}
+
+.form-group {
+    margin-bottom: 20px;
+    text-align: right;
+    /* Ensure labels are right-aligned */
+}
+
+.form-group label {
+    display: block;
+    font-size: 0.95em;
+    color: #444;
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+.form-group input[type="email"],
+.form-group input[type="password"] {
+    width: calc(100% - 24px);
+    /* Account for padding and border */
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    font-size: 1em;
+    color: #333;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    font-family: 'IBM Plex Sans Arabic', sans-serif;
+}
+
+.form-group input:focus {
+    border-color: #a7f300;
+    /* Lemon green accent on focus */
+    box-shadow: 0 0 0 3px rgba(167, 243, 0, 0.2);
+    outline: none;
+}
+
+.remember-me {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    /* Align to the right for RTL */
+    margin-bottom: 30px;
+}
+
+.remember-me input[type="checkbox"] {
+    margin-left: 10px;
+    /* Space between checkbox and label */
+    width: 18px;
+    height: 18px;
+    accent-color: #a7f300;
+    /* Lemon green for checkbox */
+}
+
+.remember-me label {
+    margin-bottom: 0;
+    /* Reset label margin */
+    font-weight: normal;
+    cursor: pointer;
+}
+
+.login-button {
+    background-color: #a7f300;
+    /* Lemon green accent */
+    color: #fff;
+    border: none;
+    padding: 15px 0;
+    border-radius: 30px;
+    font-size: 1.15em;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+.login-button:hover {
+    background-color: #92d900;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(167, 243, 0, 0.3);
+}
+
+.register-link {
+    display: block;
+    text-decoration: none;
+    color: #555;
+    font-size: 0.95em;
+    transition: color 0.3s ease;
+}
+
+.register-link:hover {
+    color: #a7f300;
+    /* Lemon green accent on hover */
+}
+
+/* Toast Notifications */
+.toast-notification {
+    position: fixed;
+    /* Fixed position relative to viewport */
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #333;
+    color: #fff;
+    padding: 15px 25px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1em;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    z-index: 100;
+    opacity: 0;
+    visibility: hidden;
+}
+
+.toast-notification.success {
+    background-color: #28a745;
+    /* Green for success */
+}
+
+.toast-notification.error {
+    background-color: #dc3545;
+    /* Red for error */
+}
+
+.toast-notification i {
+    font-size: 1.3em;
+}
+
+.toast-notification.visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0);
+    /* Final position */
+}
+
+.toast-notification.hidden {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateX(-50%) translateY(20px);
+    /* Start slightly below */
+}
+
+
+/* Footer Styling */
+.simple-footer {
+    width: 100%;
+    text-align: center;
+    padding: 30px 0 10px;
+    border-top: 1px solid #e0e0e0;
+    /* Subtle separator */
+    color: #777;
+    font-size: 0.9em;
+}
+
+.simple-footer .footer-links {
+    margin-bottom: 15px;
+}
+
+.simple-footer .footer-links a {
+    color: #777;
+    text-decoration: none;
+    margin: 0 15px;
+    transition: color 0.3s ease;
+}
+
+.simple-footer .footer-links a:hover {
+    color: #a7f300;
+    /* Lemon green accent */
+}
+
+.simple-footer .social-icons {
+    margin-top: 15px;
+}
+
+.simple-footer .social-icons a {
+    color: #777;
+    font-size: 1.5em;
+    margin: 0 10px;
+    transition: color 0.3s ease;
+}
+
+.simple-footer .social-icons a:hover {
+    color: #a7f300;
+    /* Lemon green accent */
+}
+
+
+/* Responsive Design */
+@media (max-width: 600px) {
+    .login-card {
+        padding: 30px 25px;
+        max-width: 90%;
+    }
+
+    .login-card h2 {
+        font-size: 1.8em;
+    }
+
+    .login-card .subtitle {
+        font-size: 0.95em;
+    }
+
+    .login-button {
+        font-size: 1.05em;
+        padding: 13px 0;
+    }
+
+    .simple-header .logo {
+        font-size: 2em;
+    }
+
+    .simple-footer .footer-links a {
+        margin: 0 10px;
+        display: block;
+        /* Stack links */
+        margin-bottom: 8px;
+    }
+
+    .simple-footer .social-icons a {
+        font-size: 1.3em;
+    }
+
+    .form-group input[type="email"],
+    .form-group input[type="password"] {
+        width: calc(100% - 20px);
+        /* Adjust padding */
+    }
+}
+
+@media (max-width: 400px) {
+    .login-card {
+        border-radius: 15px;
+        padding: 25px 20px;
+    }
+
+    .login-card h2 {
+        font-size: 1.6em;
+    }
+
+    .login-card .subtitle {
+        font-size: 0.9em;
+        margin-bottom: 25px;
+    }
+
+    .toast-notification {
+        width: 80%;
+        text-align: center;
+        flex-direction: column;
+    }
+}
