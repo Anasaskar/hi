@@ -1,0 +1,209 @@
+/* General Styling */
+body {
+    font-family: 'IBM Plex Sans Arabic', sans-serif;
+    background-color: #f7f9fc;
+    /* Clean light gray background */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    color: #333;
+    direction: rtl;
+    /* Right-to-left for Arabic */
+    text-align: right;
+}
+
+.pricing-container {
+    text-align: center;
+    padding: 20px;
+    max-width: 1000px;
+    width: 100%;
+}
+
+h1 {
+    font-size: 2.5em;
+    color: #2c3e50;
+    margin-bottom: 40px;
+}
+
+/* Toggle Switch Styling */
+.pricing-toggle {
+    display: inline-flex;
+    background-color: #e0e0e0;
+    border-radius: 30px;
+    padding: 5px;
+    margin-bottom: 40px;
+    font-weight: 600;
+}
+
+.toggle-option {
+    padding: 10px 20px;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: #555;
+}
+
+.toggle-option.active {
+    background-color: #a7f300;
+    /* Lemon green accent */
+    color: #fff;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Pricing Cards Styling */
+.pricing-cards {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    /* Allows cards to wrap on smaller screens */
+}
+
+.pricing-card {
+    background-color: #fff;
+    border-radius: 15px;
+    padding: 30px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+    width: 300px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: 1px solid #e0e0e0;
+    /* Subtle border */
+    position: relative;
+    /* For the badge */
+}
+
+.pricing-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+}
+
+.pricing-card h2 {
+    font-size: 1.8em;
+    color: #2c3e50;
+    margin-bottom: 20px;
+}
+
+.pricing-card .price {
+    font-size: 2.5em;
+    font-weight: 700;
+    color: #a7f300;
+    /* Lemon green accent for price */
+    margin-bottom: 20px;
+}
+
+.pricing-card .features {
+    font-size: 1.1em;
+    color: #666;
+    margin-bottom: 30px;
+}
+
+/* Call to Action Button */
+.cta-button {
+    background-color: #d0d0d0;
+    /* Gray for inactive buttons */
+    color: #fff;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 30px;
+    font-size: 1.1em;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    font-weight: 600;
+    width: 100%;
+    /* Make button full width of card */
+    max-width: 200px;
+}
+
+.cta-button:hover {
+    transform: translateY(-2px);
+}
+
+.cta-button.primary {
+    background-color: #a7f300;
+    /* Lemon green for active/pro button */
+}
+
+.cta-button.primary:hover {
+    background-color: #92d900;
+}
+
+/* Pro Card Specific Styling */
+.pro-card {
+    border-color: #a7f300;
+    /* Lemon green border for pro card */
+    box-shadow: 0 10px 30px rgba(167, 243, 0, 0.3);
+    /* Lemon green shadow */
+    transform: scale(1.05);
+    /* Slightly larger */
+    z-index: 1;
+    /* Ensure it stays on top if cards overlap */
+}
+
+.pro-card:hover {
+    transform: translateY(-15px) scale(1.06);
+    box-shadow: 0 15px 40px rgba(167, 243, 0, 0.4);
+}
+
+.pro-badge {
+    position: absolute;
+    top: -15px;
+    right: -15px;
+    background-color: #a7f300;
+    /* Lemon green */
+    color: #fff;
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-size: 0.9em;
+    font-weight: 700;
+    transform: rotate(5deg);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .pricing-cards {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .pricing-card {
+        width: 85%;
+        /* Adjust width for smaller screens */
+    }
+
+    .pro-card {
+        transform: scale(1.02);
+        /* Less aggressive scaling on small screens */
+    }
+
+    .pro-card:hover {
+        transform: translateY(-10px) scale(1.03);
+    }
+}
+
+@media (max-width: 480px) {
+    h1 {
+        font-size: 2em;
+    }
+
+    .pricing-card {
+        padding: 20px;
+    }
+
+    .pricing-card h2 {
+        font-size: 1.5em;
+    }
+
+    .pricing-card .price {
+        font-size: 2em;
+    }
+
+    .cta-button {
+        padding: 10px 20px;
+        font-size: 1em;
+    }
+}
