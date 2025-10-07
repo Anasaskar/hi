@@ -1,6 +1,5 @@
 const http = require('http');
 const fs = require('fs');
-const path = require('path');
 
 const PORT = process.env.PORT || 3000;
 
@@ -144,3 +143,143 @@ server.listen(PORT, () => {
 });
 
 module.exports = server;
+
+require('dotenv').config();
+const path = require('path');
+const express = require('express');
+const mongoose = require('mongoose');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const cookieParser = require('cookie-parser');
+const cors = require('cors');
+
+const User = require('./models/User');
+
+const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/virtufit';
+const JWT_SECRET = process.env.JWT_SECRET || 'replace_me_with_strong_secret';
+const JWT_EXPIRES = process.env.JWT_EXPIRES || '7d'; // token expiry
+
+const app = express();
+
+// Middlewares
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
+app.use(cors({
+	origin: process.env.CLIENT_ORIGIN || 'http://localhost:3000',
+	credentials: true
+}));
+
+// Connect to MongoDB
+mongoose.connect(MONGO_URI, {
+	useNewUrlParser: true,
+	useUnifiedTopology: true,
+}).then(() => {
+	console.log('MongoDB connected');
+}).catch(err => {
+	console.error('MongoDB connection error:', err);
+});
+
+// --- Auth routes ---
+app.post('/api/auth/register', async (req, res) => {
+	try {
+		const { fullName, email, password } = req.body;
+		if (!fullName || !email || !password) return res.status(400).json({ message: 'ارجع اكمل الحقول' });
+
+		const existing = await User.findOne({ email: email.toLowerCase() });
+		if (existing) return res.status(409).json({ message: 'البريد الإلكتروني مستخدم مسبقًا' });
+
+		const saltRounds = 12;
+		const passwordHash = await bcrypt.hash(password, saltRounds);
+
+		const user = new User({
+			fullName,
+			email: email.toLowerCase(),
+			passwordHash
+		});
+
+		await user.save();
+
+		// issue token
+		const token = jwt.sign({ id: user._id, email: user.email }, JWT_SECRET, { expiresIn: JWT_EXPIRES });
+
+		// set httpOnly cookie
+		res.cookie('token', token, {
+			httpOnly: true,
+			secure: process.env.NODE_ENV === 'production',
+			sameSite: 'lax',
+			maxAge: 1000 * 60 * 60 * 24 * 7 // 7 days
+		});
+
+		return res.status(201).json({ message: 'تم إنشاء الحساب', user: { id: user._id, fullName: user.fullName, email: user.email } });
+	} catch (err) {
+		console.error(err);
+		return res.status(500).json({ message: 'خطأ في الخادم' });
+	}
+});
+
+app.post('/api/auth/login', async (req, res) => {
+	try {
+		const { email, password, remember } = req.body;
+		if (!email || !password) return res.status(400).json({ message: 'ارجع اكمل الحقول' });
+
+		const user = await User.findOne({ email: email.toLowerCase() });
+		if (!user) return res.status(401).json({ message: 'بيانات غير صحيحة' });
+
+		const ok = await bcrypt.compare(password, user.passwordHash);
+		if (!ok) return res.status(401).json({ message: 'بيانات غير صحيحة' });
+
+		const token = jwt.sign({ id: user._id, email: user.email }, JWT_SECRET, { expiresIn: remember ? '30d' : JWT_EXPIRES });
+
+		res.cookie('token', token, {
+			httpOnly: true,
+			secure: process.env.NODE_ENV === 'production',
+			sameSite: 'lax',
+			maxAge: remember ? 1000 * 60 * 60 * 24 * 30 : 1000 * 60 * 60 * 24 * 7
+		});
+
+		return res.json({ message: 'تم تسجيل الدخول', user: { id: user._id, fullName: user.fullName, email: user.email } });
+	} catch (err) {
+		console.error(err);
+		return res.status(500).json({ message: 'خطأ في الخادم' });
+	}
+});
+
+// auth status (example protected endpoint)
+function authMiddleware(req, res, next) {
+	const token = req.cookies.token || (req.headers.authorization && req.headers.authorization.split(' ')[1]);
+	if (!token) return res.status(401).json({ message: 'غير مسموح' });
+	try {
+		const payload = jwt.verify(token, JWT_SECRET);
+		req.user = payload;
+		next();
+	} catch (err) {
+		return res.status(401).json({ message: 'التوكن غير صالح' });
+	}
+}
+
+app.get('/api/auth/me', authMiddleware, async (req, res) => {
+	const user = await User.findById(req.user.id).select('-passwordHash');
+	if (!user) return res.status(404).json({ message: 'المستخدم غير موجود' });
+	res.json({ user });
+});
+
+app.post('/api/auth/logout', (req, res) => {
+	res.clearCookie('token');
+	res.json({ message: 'تم تسجيل الخروج' });
+});
+
+// --- Serve static files (your existing site) ---
+app.use(express.static(path.join(process.cwd())));
+
+// fallback to index.html for client routes if needed
+app.get('*', (req, res) => {
+	// only fallback for non-api requests
+	if (req.path.startsWith('/api/')) return res.status(404).json({ message: 'Not found' });
+	res.sendFile(path.join(process.cwd(), 'index.html'));
+});
+
+// Start server
+app.listen(PORT, () => {
+	console.log(`Server running on http://localhost:${PORT}`);
+});
