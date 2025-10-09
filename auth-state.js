@@ -35,18 +35,18 @@ async function updateAuthState() {
                 const userNameSpan = dashboardHeader.querySelector('.user-info span');
                 if (userNameSpan) userNameSpan.textContent = user.fullName;
             } else {
-                    // Hide default main header if present and remove its reserved padding
-                    const mainHeader = document.querySelector('.main-header');
-                    if (mainHeader) {
-                        mainHeader.style.display = 'none';
-                        // Save original body padding-top and remove it so no extra gap appears
-                        const body = document.body;
-                        if (!body.dataset._savedPaddingTop) {
-                            const computed = window.getComputedStyle(body).paddingTop || '';
-                            body.dataset._savedPaddingTop = computed || '';
-                        }
-                        body.style.paddingTop = '0px';
+                // Hide default main header if present and remove its reserved padding
+                const mainHeader = document.querySelector('.main-header');
+                if (mainHeader) {
+                    mainHeader.style.display = 'none';
+                    // Save original body padding-top and remove it so no extra gap appears
+                    const body = document.body;
+                    if (!body.dataset._savedPaddingTop) {
+                        const computed = window.getComputedStyle(body).paddingTop || '';
+                        body.dataset._savedPaddingTop = computed || '';
                     }
+                    body.style.paddingTop = '0px';
+                }
 
                 // Create dashboard-style header
                 dashboardHeader = document.createElement('header');
