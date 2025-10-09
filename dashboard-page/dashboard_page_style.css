@@ -623,6 +623,74 @@ textarea:focus {
     transform: translateX(-50%) translateY(20px);
 }
 
+.tryon-results-section {
+    margin-top: 3rem;
+    padding: 2rem;
+    background: #fafafa;
+    border-radius: 16px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.tryon-results-section h2 {
+    font-size: 1.6rem;
+    margin-bottom: 1rem;
+    color: #222;
+}
+
+.results-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1.5rem;
+}
+
+.result-item {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    transition: transform 0.2s ease;
+}
+
+.result-item:hover {
+    transform: scale(1.02);
+}
+
+.result-item img {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+    border-bottom: 1px solid #eee;
+}
+
+.result-item .info {
+    padding: 0.8rem 1rem;
+}
+
+.result-item .info h3 {
+    font-size: 1rem;
+    margin: 0;
+    color: #333;
+}
+
+.result-item .info .download-btn {
+    margin-top: 0.5rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #28a745;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 0.4rem 0.8rem;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.result-item .info .download-btn:hover {
+    background: #218838;
+}
+
+
 
 /* Responsive Design */
 @media (max-width: 992px) {

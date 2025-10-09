@@ -262,6 +262,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 // If server returned a processedImageUrl (simulated or real), pass it to addProcessedOrder
                 const processedImageUrl = serverResult.processedImageUrl || null;
                 addProcessedOrder(tshirtUpload.files[0], modelSelect.value, processedImageUrl);
+                showResultInResultsGrid(modelSelect.value, serverResult.imageUrl || processedImageUrl);
 
                 tryOnForm.reset();
                 filePreview.classList.add('hidden');
@@ -302,6 +303,42 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Previous Orders / Gallery Section ---
     const previousOrdersGrid = document.getElementById('previousOrdersGrid');
+
+    // --- Show Result Image in Results Section ---
+    function showResultInResultsGrid(modelId, processedImageUrl) {
+        const resultsGrid = document.getElementById('resultsGrid');
+        const noResultsMessage = document.getElementById('noResultsMessage');
+
+        if (noResultsMessage) noResultsMessage.style.display = 'none';
+
+        const modelName = models.find(m => m.id === modelId)?.name || 'موديل غير معروف';
+
+        const item = document.createElement('div');
+        item.classList.add('result-item');
+        item.innerHTML = `
+        <img src="${processedImageUrl}" alt="نتيجة التركيب">
+        <div class="info">
+            <h3>${modelName}</h3>
+            <button class="download-btn">
+                <i class="fas fa-download"></i> تحميل الصورة
+            </button>
+        </div>
+    `;
+
+        // download button
+        item.querySelector('.download-btn').addEventListener('click', () => {
+            const link = document.createElement('a');
+            link.href = processedImageUrl;
+            link.download = `tryon_${modelName}.jpg`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        });
+
+        resultsGrid.prepend(item);
+    }
+
+
 
     // Load previous orders from server
     async function loadPreviousOrders() {
