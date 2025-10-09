@@ -21,11 +21,12 @@ export default function Dashboard() {
       alert('Please select a model and upload a clothing image')
       return
     }
+    //d
 
     setIsGenerating(true)
     setProgress(0)
     setCurrentTaskId(null)
-    
+
     try {
       const formData = new FormData()
       formData.append('modelId', selectedModel.id)
@@ -37,16 +38,16 @@ export default function Dashboard() {
       })
 
       const data = await response.json()
-      
+
       if (data.ok) {
         setResultImage(data.processedImageUrl)
         setCurrentTaskId(data.taskId)
-        
+
         // If we have a task ID, start polling for progress
         if (data.taskId) {
           pollProgress(data.taskId)
         }
-        
+
         // Refresh orders to show the new one
         fetchOrders()
       } else {
@@ -72,10 +73,10 @@ export default function Dashboard() {
         })
 
         const data = await response.json()
-        
+
         if (data.ok) {
           setProgress(data.progress)
-          
+
           if (data.status === 'COMPLETED' && data.downloadUrl) {
             setResultImage(data.downloadUrl)
             clearInterval(pollInterval)
@@ -138,7 +139,7 @@ export default function Dashboard() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.1 }}
           >
-            <ModelSelector 
+            <ModelSelector
               selectedModel={selectedModel}
               onSelectModel={setSelectedModel}
             />
@@ -149,7 +150,7 @@ export default function Dashboard() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.2 }}
           >
-            <UploadArea 
+            <UploadArea
               uploadedImage={uploadedImage}
               onUpload={setUploadedImage}
             />
@@ -166,11 +167,10 @@ export default function Dashboard() {
             <button
               onClick={handleGenerate}
               disabled={!selectedModel || !uploadedImage || isGenerating}
-              className={`btn-primary text-lg px-8 py-3 ${
-                (!selectedModel || !uploadedImage || isGenerating) 
-                  ? 'opacity-50 cursor-not-allowed' 
+              className={`btn-primary text-lg px-8 py-3 ${(!selectedModel || !uploadedImage || isGenerating)
+                  ? 'opacity-50 cursor-not-allowed'
                   : 'hover:scale-105 transform transition-transform'
-              }`}
+                }`}
             >
               {isGenerating ? (
                 <div className="flex items-center gap-2">
@@ -190,7 +190,7 @@ export default function Dashboard() {
           transition={{ delay: 0.4 }}
           className="mb-8"
         >
-          <ResultDisplay 
+          <ResultDisplay
             resultImage={resultImage}
             isGenerating={isGenerating}
             progress={progress}
@@ -217,7 +217,7 @@ export default function Dashboard() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
         >
-          <PreviousOrders 
+          <PreviousOrders
             orders={orders}
             onRefresh={fetchOrders}
           />
