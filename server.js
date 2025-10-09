@@ -677,6 +677,11 @@ app.post('/api/auth/confirm', async (req, res) => {
 	}
 });
 
+// ========= 404 HANDLER =========
+app.use((req, res) => {
+    res.status(404).sendFile(path.join(__dirname, '404.html'));
+});
+
 // ========= START SERVER =========
 app.listen(PORT, () => {
 	console.log(`🚀 Server running at http://localhost:${PORT}`);
