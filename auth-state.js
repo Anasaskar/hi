@@ -53,7 +53,7 @@ async function updateAuthState() {
                 dashboardHeader.className = 'dashboard-header';
                 dashboardHeader.innerHTML = `
                     <div class="container">
-                        <div class="logo">CloAI</div>
+                        <div class="logo">CloyAi</div>
                         <nav class="dashboard-nav">
                             <ul>
                                 <li><a href="/dashboard" class="dashboard-link active">Dashboard</a></li>
