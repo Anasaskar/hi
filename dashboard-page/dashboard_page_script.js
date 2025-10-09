@@ -205,63 +205,24 @@ document.addEventListener('DOMContentLoaded', () => {
     const processingErrorToast = document.getElementById('processingErrorToast');
     const validationErrorToast = document.getElementById('validationErrorToast');
 
-    async function processImagesWithGemini(modelImage, tshirtImage) {
-        const API_KEY = 'AIzaSyCBFfYyhnEo-w-K7S8d32QCaWRYMaLwgWs';
-        const API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.0-pro-vision-latest:generateContent';
+    // Server-side processing: send modelId and cloth file to server endpoint which calls the AI provider
+    async function processImagesOnServer(modelId, clothFile) {
+        const form = new FormData();
+        form.append('modelId', modelId);
+        form.append('cloth', clothFile, clothFile.name);
 
-        try {
-            // Ensure both images are properly formatted as base64
-            const modelImageBase64 = modelImage.includes('base64,') ? modelImage.split('base64,')[1] : modelImage;
-            const tshirtImageBase64 = tshirtImage.includes('base64,') ? tshirtImage.split('base64,')[1] : tshirtImage;
+        const response = await fetch('/api/process-tryon', {
+            method: 'POST',
+            body: form,
+            credentials: 'include'
+        });
 
-            const response = await fetch(`${API_URL}?key=${API_KEY}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    contents: {
-                        parts: [
-                            { text: "i want this model to wear this t shirt" },
-                            {
-                                inline_data: {
-                                    mime_type: "image/jpeg",
-                                    data: modelImageBase64
-                                }
-                            },
-                            {
-                                inline_data: {
-                                    mime_type: "image/jpeg",
-                                    data: tshirtImageBase64
-                                }
-                            }
-                        ]
-                    },
-                    safety_settings: {
-                        category: "HARM_CATEGORY_DANGEROUS_CONTENT",
-                        threshold: "BLOCK_MEDIUM_AND_ABOVE"
-                    },
-                    generation_config: {
-                        temperature: 0.4,
-                        top_k: 32,
-                        top_p: 1,
-                        max_output_tokens: 2048
-                    }
-                })
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => null);
-                console.error('API Error Details:', errorData);
-                throw new Error(`API request failed with status ${response.status}`);
-            }
-
-            const data = await response.json();
-            return data;
-        } catch (error) {
-            console.error('Error calling Gemini API:', error);
-            throw error;
+        if (!response.ok) {
+            const err = await response.json().catch(() => ({ message: 'Unknown error' }));
+            throw new Error(err.message || 'Server processing failed');
         }
+
+        return response.json();
     }
 
     tryOnForm.addEventListener('submit', async (e) => {
@@ -293,12 +254,14 @@ document.addEventListener('DOMContentLoaded', () => {
             // Get the uploaded t-shirt image as base64
             const tshirtImageBase64 = filePreviewImg.src;
 
-            // Call Gemini API
-            const result = await processImagesWithGemini(modelImageBase64, tshirtImageBase64);
+            // Send to server which will call the AI model (keeps tokens secret)
+            const serverResult = await processImagesOnServer(modelSelect.value, tshirtUpload.files[0]);
 
-            if (result) {
+            if (serverResult && serverResult.ok) {
                 showToast(processingSuccessToast);
-                addProcessedOrder(tshirtUpload.files[0], modelSelect.value);
+                // If server returned a processedImageUrl (simulated or real), pass it to addProcessedOrder
+                const processedImageUrl = serverResult.processedImageUrl || null;
+                addProcessedOrder(tshirtUpload.files[0], modelSelect.value, processedImageUrl);
 
                 tryOnForm.reset();
                 filePreview.classList.add('hidden');
@@ -306,7 +269,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 tshirtUpload.value = '';
                 modelSelect.value = '';
             } else {
-                throw new Error('No result from API');
+                throw new Error(serverResult && serverResult.message ? serverResult.message : 'No result from server');
             }
         } catch (error) {
             console.error('Processing failed:', error);
@@ -340,44 +303,62 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Previous Orders / Gallery Section ---
     const previousOrdersGrid = document.getElementById('previousOrdersGrid');
 
-    // Simulate initial orders (remove skeleton loaders after actual content loads)
-    function loadPreviousOrders() {
-        // Clear skeleton loaders
+    // Load previous orders from server
+    async function loadPreviousOrders() {
         previousOrdersGrid.innerHTML = '';
-
-        // Simulate fetching existing orders from API
-        const existingOrders = [
-            { id: 1, tshirtImage: 'https://via.placeholder.com/100x100?text=T1', processedImage: 'https://via.placeholder.com/150x150/28a745?text=Done', status: 'Done', model: 'model1' },
-            { id: 2, tshirtImage: 'https://via.placeholder.com/100x100?text=T2', processedImage: 'https://via.placeholder.com/150x150/28a745?text=Done', status: 'Done', model: 'model4' },
-            { id: 3, tshirtImage: 'https://via.placeholder.com/100x100?text=T3', processedImage: 'https://via.placeholder.com/150x150/28a745?text=Done', status: 'Done', model: 'model2' },
-        ];
-
-        existingOrders.forEach(order => addOrderItemToGrid(order));
+        try {
+            const res = await fetch('/api/orders', { credentials: 'include' });
+            if (!res.ok) throw new Error('Failed to fetch orders');
+            const data = await res.json();
+            const orders = data.orders || [];
+            if (orders.length === 0) {
+                previousOrdersGrid.innerHTML = '<p class="muted">لا توجد طلبات سابقة</p>';
+                return;
+            }
+            orders.forEach(order => addOrderItemToGrid(order));
+        } catch (err) {
+            console.error('Failed to load previous orders', err);
+            previousOrdersGrid.innerHTML = '<p class="muted">فشل تحميل الطلبات السابقة</p>';
+        }
     }
 
-    function addProcessedOrder(file, modelId) {
+    function addProcessedOrder(file, modelId, processedImageUrl) {
         const reader = new FileReader();
         reader.onload = (e) => {
             const newOrder = {
                 id: Date.now(), // Unique ID
                 tshirtImage: e.target.result,
-                processedImage: 'https://via.placeholder.com/150x150/a7f300?text=Processing...', // Placeholder for processing
+                processedImage: processedImageUrl || 'https://via.placeholder.com/150x150/a7f300?text=Processing...', // Placeholder for processing
                 status: 'Processing',
                 model: modelId
             };
             addOrderItemToGrid(newOrder);
 
-            // Simulate processing completion after a delay
-            setTimeout(() => {
-                const orderItem = document.getElementById(`order-item-${newOrder.id}`);
-                if (orderItem) {
-                    orderItem.querySelector('.status-badge').textContent = 'Done';
-                    orderItem.querySelector('.status-badge').classList.remove('processing');
-                    orderItem.querySelector('.status-badge').classList.add('done');
-                    orderItem.querySelector('.processed-img').src = `https://via.placeholder.com/150x150/28a745?text=Done`; // Actual processed image
-                    orderItem.querySelector('.download-btn').classList.remove('hidden'); // Show download button
-                }
-            }, 5000); // Simulate 5 seconds processing
+            // If server provided a processedImageUrl we can mark it as Done immediately, otherwise simulate completion after a delay
+            if (processedImageUrl) {
+                setTimeout(() => {
+                    const orderItem = document.getElementById(`order-item-${newOrder.id}`);
+                    if (orderItem) {
+                        orderItem.querySelector('.status-badge').textContent = 'Done';
+                        orderItem.querySelector('.status-badge').classList.remove('processing');
+                        orderItem.querySelector('.status-badge').classList.add('done');
+                        orderItem.querySelector('.processed-img').src = processedImageUrl;
+                        orderItem.querySelector('.download-btn').classList.remove('hidden'); // Show download button
+                    }
+                }, 800);
+            } else {
+                // Simulate processing completion after a delay
+                setTimeout(() => {
+                    const orderItem = document.getElementById(`order-item-${newOrder.id}`);
+                    if (orderItem) {
+                        orderItem.querySelector('.status-badge').textContent = 'Done';
+                        orderItem.querySelector('.status-badge').classList.remove('processing');
+                        orderItem.querySelector('.status-badge').classList.add('done');
+                        orderItem.querySelector('.processed-img').src = `https://via.placeholder.com/150x150/28a745?text=Done`; // Actual processed image
+                        orderItem.querySelector('.download-btn').classList.remove('hidden'); // Show download button
+                    }
+                }, 5000); // Simulate 5 seconds processing
+            }
         };
         reader.readAsDataURL(file);
     }

@@ -10,7 +10,15 @@ const userSchema = new mongoose.Schema({
     emailConfirmed: { type: Boolean, default: false },
     emailConfirmToken: { type: String },
     emailConfirmExpires: { type: Date },
-    createdAt: { type: Date, default: Date.now }
+    createdAt: { type: Date, default: Date.now },
+    // Recent try-on orders for the user
+    orders: [{
+        tshirtImage: String, // data URL or saved URL
+        processedImage: String, // URL to processed image
+        modelId: String,
+        status: { type: String, enum: ['Processing', 'Done', 'Failed'], default: 'Processing' },
+        createdAt: { type: Date, default: Date.now }
+    }]
 });
 
 module.exports = mongoose.model('User', userSchema);

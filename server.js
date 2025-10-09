@@ -12,6 +12,8 @@ const fs = require('fs');
 const { promisify } = require('util');
 const User = require('./models/User');
 const fetch = global.fetch || require('node-fetch');
+const multer = require('multer');
+const { Configuration, OpenAIApi } = require('openai');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -39,7 +41,7 @@ const ZOHO_REDIRECT_URI = process.env.ZOHO_REDIRECT_URI || `http://localhost:${p
 
 const ZOHO_TOKEN_FILE = path.join(__dirname, 'secrets', 'zoho_tokens.json');
 // ensure secrets dir
-try { if (!fs.existsSync(path.dirname(ZOHO_TOKEN_FILE))) fs.mkdirSync(path.dirname(ZOHO_TOKEN_FILE), { recursive: true }); } catch(e) {}
+try { if (!fs.existsSync(path.dirname(ZOHO_TOKEN_FILE))) fs.mkdirSync(path.dirname(ZOHO_TOKEN_FILE), { recursive: true }); } catch (e) { }
 
 function saveZohoTokens(obj) {
 	fs.writeFileSync(ZOHO_TOKEN_FILE, JSON.stringify(obj, null, 2));
@@ -127,7 +129,7 @@ async function getPreferredFromAddress(acctId, accessToken) {
 			}
 			// persist accountId
 			if (acctId) {
-				try { const t = loadZohoTokens() || {}; t.accountId = acctId; saveZohoTokens(t); } catch (e) {}
+				try { const t = loadZohoTokens() || {}; t.accountId = acctId; saveZohoTokens(t); } catch (e) { }
 			}
 		}
 
@@ -153,7 +155,7 @@ async function getPreferredFromAddress(acctId, accessToken) {
 		// return first non-empty candidate and persist it
 		for (const c of candidates) {
 			if (c && typeof c === 'string' && c.includes('@')) {
-				try { const t = loadZohoTokens() || {}; t.preferredFrom = c; saveZohoTokens(t); } catch (e) {}
+				try { const t = loadZohoTokens() || {}; t.preferredFrom = c; saveZohoTokens(t); } catch (e) { }
 				return c;
 			}
 		}
@@ -222,7 +224,7 @@ app.post('/api/zoho/send-test-email', async (req, res) => {
 		}
 		const payload = {
 			fromAddress: fromAddr || 'no-reply@yourdomain.com',
-			toAddress: Array.isArray(toAddress) ? toAddress : [ (toAddress || 'user@example.com') ],
+			toAddress: Array.isArray(toAddress) ? toAddress : [(toAddress || 'user@example.com')],
 			subject: subject || 'تأكيد البريد الإلكتروني',
 			content: content || 'اضغط هنا لتأكيد حسابك: https://yourdomain.com/confirm?token=...'
 		};
@@ -352,6 +354,11 @@ app.get('/dashboard', verifyToken, requirePaid, (req, res) => {
 	res.sendFile(path.join(__dirname, 'dashboard-page', 'dashboard_page.html'));
 });
 
+// AI Dashboard (Next.js route)
+app.get('/ai-dashboard', verifyToken, requirePaid, (req, res) => {
+	res.redirect('/dashboard');
+});
+
 // تسجيل الخروج
 app.post('/api/auth/logout', (req, res) => {
 	res.clearCookie('token');
@@ -395,6 +402,169 @@ app.get('/api/models', verifyToken, requirePaid, async (req, res) => {
 	} catch (error) {
 		console.error('Error reading models directory:', error);
 		res.status(500).json({ message: 'Error loading models' });
+	}
+});
+
+// Endpoint to process try-on requests: accepts modelId and a cloth image upload
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 5 * 1024 * 1024 } }); // 5MB limit
+
+app.post('/api/process-tryon', verifyToken, requirePaid, upload.single('cloth'), async (req, res) => {
+	try {
+		console.log('/api/process-tryon called by user:', req.user && req.user.email);
+		const modelId = req.body.modelId;
+		console.log('modelId:', modelId);
+		if (!modelId) return res.status(400).json({ message: 'Missing modelId' });
+
+		// Find model image path from modelsImages
+		const modelsDir = path.join(__dirname, 'modelsImages');
+		const files = fs.readdirSync(modelsDir).filter(f => /\.(jpe?g|png)$/i.test(f));
+		const index = parseInt(modelId.replace(/[^0-9]/g, ''), 10) - 1;
+		const modelFile = files[index];
+		if (!modelFile) return res.status(400).json({ message: 'Model not found' });
+
+		const modelImagePath = path.join(modelsDir, modelFile);
+		console.log('modelImagePath:', modelImagePath);
+		const modelImageBuffer = fs.readFileSync(modelImagePath);
+
+		if (!req.file) return res.status(400).json({ message: 'No cloth image uploaded' });
+		const clothBuffer = req.file.buffer;
+
+		// Prepare base64 data URIs
+		const modelBase64 = modelImageBuffer.toString('base64');
+		const clothBase64 = clothBuffer.toString('base64');
+
+		// Use GitHub Models via OpenAI client with GitHub token (set GITHUB_TOKEN in env)
+		const token = process.env.GITHUB_TOKEN;
+		console.log('GITHUB_TOKEN present?', !!token);
+
+		// If no token is configured, return a simulated successful response so the UI/demo still works.
+		let processedImageUrl = null;
+		if (!token) {
+			console.warn('GITHUB_TOKEN not set — returning simulated response for /api/process-tryon');
+			processedImageUrl = 'https://via.placeholder.com/600x800/28a745?text=Done';
+		} else {
+			const endpoint = 'https://models.github.ai/inference';
+			const modelName = process.env.GH_MODEL_NAME || 'openai/gpt-4o';
+
+			console.log('Calling OpenAI model:', modelName);
+			const configuration = new Configuration({ apiKey: token, basePath: endpoint });
+			const openai = new OpenAIApi(configuration);
+
+			// Build messages with image inputs as data urls
+			const modelDataUrl = `data:image/jpeg;base64,${modelBase64}`;
+			const clothDataUrl = `data:image/jpeg;base64,${clothBase64}`;
+
+			const prompt = 'make this model wear this cloth';
+
+			try {
+				// Call chat completions create (following examples)
+				const response = await openai.createChatCompletion({
+					model: modelName,
+					messages: [
+						{ role: 'system', content: 'You are an assistant that composes instructions for an image generation/processing pipeline.' },
+						{
+							role: 'user',
+							content: [
+								{ type: 'text', text: prompt },
+								{ type: 'image_url', image_url: { url: modelDataUrl, details: 'model image' } },
+								{ type: 'image_url', image_url: { url: clothDataUrl, details: 'cloth image' } }
+							]
+						}
+					],
+					temperature: 0.7,
+					max_tokens: 1000
+				});
+
+				console.log('OpenAI response received');
+				// log raw response safe subset
+				try { console.log('OpenAI response keys:', Object.keys(response.data || {})); } catch (e) { }
+
+				// Currently we expect a text response; if the model returns a data URL or an image URL, extract it.
+				const assistantMessage = response.data?.choices?.[0]?.message?.content || null;
+				// Try to find data:image in the assistant message as a fallback
+				if (assistantMessage && typeof assistantMessage === 'string' && assistantMessage.includes('data:image')) {
+					const match = assistantMessage.match(/(data:image\/[a-zA-Z]+;base64,[A-Za-z0-9+/=]+)/);
+					if (match) processedImageUrl = match[1];
+				}
+				// If response included usage or other fields, log for debugging
+				if (!processedImageUrl) console.log('No processed image found in assistant message');
+			} catch (openaiErr) {
+				console.error('OpenAI call failed', openaiErr);
+				// If the error has response data, include it in server log
+				if (openaiErr.response && openaiErr.response.data) console.error('OpenAI error data:', openaiErr.response.data);
+				throw openaiErr; // will be caught by outer catch
+			}
+		}
+
+
+
+		// Save a new order in the user's account (tshirt image stored as data URL) and return it
+		try {
+			const user = req.user;
+			const newOrder = {
+				tshirtImage: `data:image/jpeg;base64,${clothBase64}`,
+				processedImage: processedImageUrl || 'https://via.placeholder.com/600x800/a7f300?text=Processing...',
+				modelId: modelId,
+				status: processedImageUrl ? 'Done' : 'Processing',
+				createdAt: Date.now()
+			};
+			user.orders = user.orders || [];
+			user.orders.unshift(newOrder); // add newest first
+			// limit stored orders to last 20
+			user.orders = user.orders.slice(0, 20);
+			await user.save();
+
+			res.json({ ok: true, processedImageUrl: newOrder.processedImage, order: newOrder });
+		} catch (err) {
+			console.error('Failed to save order to user', err);
+			res.status(500).json({ message: 'Failed to save order', error: err.message });
+		}
+	} catch (err) {
+		console.error('process-tryon error', err);
+		res.status(500).json({ message: 'Processing failed', error: err.message });
+	}
+});
+
+// DEV ONLY: unauthenticated version to help debugging locally (disabled in production)
+if (process.env.NODE_ENV !== 'production') {
+	app.post('/dev/process-tryon-unauth', upload.single('cloth'), async (req, res) => {
+		// reuse the same handler code path roughly
+		try {
+			// fake a req.user for logging
+			req.user = { email: 'dev-debug' };
+			// delegate to same logic by calling internal function is complex; instead copy minimal steps
+			const modelId = req.body.modelId;
+			if (!modelId) return res.status(400).json({ message: 'Missing modelId' });
+			const modelsDir = path.join(__dirname, 'modelsImages');
+			const files = fs.readdirSync(modelsDir).filter(f => /\.(jpe?g|png)$/i.test(f));
+			const index = parseInt(modelId.replace(/[^0-9]/g, ''), 10) - 1;
+			const modelFile = files[index];
+			if (!modelFile) return res.status(400).json({ message: 'Model not found' });
+			const modelImagePath = path.join(modelsDir, modelFile);
+			const modelImageBuffer = fs.readFileSync(modelImagePath);
+			if (!req.file) return res.status(400).json({ message: 'No cloth image uploaded' });
+			const clothBuffer = req.file.buffer;
+			const modelBase64 = modelImageBuffer.toString('base64');
+			const clothBase64 = clothBuffer.toString('base64');
+			// return simulated processed image
+			const processedImageUrl = 'https://via.placeholder.com/600x800/28a745?text=DevDone';
+			// Save to a fake user store? Skip DB, return result for debug
+			return res.json({ ok: true, processedImageUrl });
+		} catch (err) {
+			console.error('dev process tryon error', err);
+			res.status(500).json({ message: 'Dev Processing failed', error: err.message });
+		}
+	});
+}
+
+// Get current user's orders
+app.get('/api/orders', verifyToken, requirePaid, async (req, res) => {
+	try {
+		const user = await User.findById(req.user._id).select('orders');
+		res.json({ ok: true, orders: user.orders || [] });
+	} catch (err) {
+		console.error('Failed to fetch orders', err);
+		res.status(500).json({ ok: false, message: 'Failed to fetch orders' });
 	}
 });
 
@@ -444,7 +614,7 @@ app.post('/api/auth/register', async (req, res) => {
 		const passwordHash = await bcrypt.hash(password, 12);
 		// create email confirm token
 		const confirmToken = require('crypto').randomBytes(20).toString('hex');
-		const confirmExpires = Date.now() + 24*3600*1000; // 24 hours
+		const confirmExpires = Date.now() + 24 * 3600 * 1000; // 24 hours
 
 		const user = new User({ fullName, email: email.toLowerCase(), passwordHash, emailConfirmToken: confirmToken, emailConfirmExpires: confirmExpires });
 		await user.save();
@@ -462,7 +632,7 @@ app.post('/api/auth/register', async (req, res) => {
 			try {
 				const tokens = loadZohoTokens();
 				if (tokens && tokens.accountId) acctId = tokens.accountId;
-			} catch (ignore) {}
+			} catch (ignore) { }
 			// fetch accounts if we don't already have acctId
 			if (!acctId) {
 				const accountsRes = await fetch(`${mailBaseUrl}/api/accounts`, { headers: { Authorization: `Zoho-oauthtoken ${accessToken}` } });
@@ -474,7 +644,7 @@ app.post('/api/auth/register', async (req, res) => {
 					acctId = accountsData.data[0].accountId || accountsData.data[0].id || accountsData.data[0].account_id;
 				}
 				if (acctId) {
-					try { const tokens = loadZohoTokens() || {}; tokens.accountId = acctId; saveZohoTokens(tokens); } catch (e) {}
+					try { const tokens = loadZohoTokens() || {}; tokens.accountId = acctId; saveZohoTokens(tokens); } catch (e) { }
 				}
 			}
 			if (acctId) {
@@ -610,7 +780,7 @@ app.post('/api/auth/resend-confirm', async (req, res) => {
 		if (user.emailConfirmed) return res.status(400).json({ message: 'Already confirmed' });
 		const confirmToken = require('crypto').randomBytes(20).toString('hex');
 		user.emailConfirmToken = confirmToken;
-		user.emailConfirmExpires = Date.now() + 24*3600*1000;
+		user.emailConfirmExpires = Date.now() + 24 * 3600 * 1000;
 		await user.save();
 		const confirmUrl = `${req.protocol}://${req.get('host')}/auth/confirm/confirm_page.html?token=${confirmToken}&email=${encodeURIComponent(user.email)}`;
 		console.log('Resend Confirmation URL:', confirmUrl);
@@ -623,7 +793,7 @@ app.post('/api/auth/resend-confirm', async (req, res) => {
 			try {
 				const tokens = loadZohoTokens();
 				if (tokens && tokens.accountId) acctId = tokens.accountId;
-			} catch (ignore) {}
+			} catch (ignore) { }
 			if (!acctId) {
 				const accountsRes = await fetch(`${mailBaseUrl}/api/accounts`, { headers: { Authorization: `Zoho-oauthtoken ${accessToken}` } });
 				let accountsData;
@@ -634,7 +804,7 @@ app.post('/api/auth/resend-confirm', async (req, res) => {
 					acctId = accountsData.data[0].accountId || accountsData.data[0].id || accountsData.data[0].account_id;
 				}
 				if (acctId) {
-					try { const tokens = loadZohoTokens() || {}; tokens.accountId = acctId; saveZohoTokens(tokens); } catch (e) {}
+					try { const tokens = loadZohoTokens() || {}; tokens.accountId = acctId; saveZohoTokens(tokens); } catch (e) { }
 				}
 			}
 			if (acctId) {
@@ -727,7 +897,7 @@ app.post('/admin/zoho/send-test', express.json(), async (req, res) => {
 			if (tokens && tokens.accountId) {
 				acctId = tokens.accountId;
 			}
-		} catch (ignore) {}
+		} catch (ignore) { }
 
 		if (!acctId) {
 			const accountsRes = await fetch(`${mailBaseUrl}/api/accounts`, { headers: { Authorization: `Zoho-oauthtoken ${accessToken}` } });
@@ -757,7 +927,7 @@ app.post('/admin/zoho/send-test', express.json(), async (req, res) => {
 		}
 		const payload = {
 			fromAddress: fromAddr || 'no-reply@yourdomain.com',
-			toAddress: Array.isArray(toAddress) ? toAddress : [ toAddress ],
+			toAddress: Array.isArray(toAddress) ? toAddress : [toAddress],
 			subject: req.body.subject || 'Test from local server',
 			content: req.body.content || 'This is a test email sent from the local server via Zoho.'
 		};
@@ -819,7 +989,7 @@ app.get('/admin/zoho/account-details', async (req, res) => {
 
 		// prefer saved accountId
 		let acctId = null;
-		try { const t = loadZohoTokens(); if (t && t.accountId) acctId = t.accountId; } catch (e) {}
+		try { const t = loadZohoTokens(); if (t && t.accountId) acctId = t.accountId; } catch (e) { }
 
 		let acctDetail = null;
 		if (!acctId && Array.isArray(accountsData) && accountsData.length) {

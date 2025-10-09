@@ -1,0 +1,6 @@
+<svg width="600" height="800" viewBox="0 0 600 800" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="600" height="800" fill="#f3f4f6"/>
+<rect x="50" y="50" width="500" height="700" fill="#e5e7eb" rx="16"/>
+<text x="300" y="400" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="#666666" text-anchor="middle">AI Generated Result</text>
+<text x="300" y="450" font-family="Arial, sans-serif" font-size="16" fill="#999999" text-anchor="middle">Your generated image will appear here</text>
+</svg>

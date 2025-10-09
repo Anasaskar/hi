@@ -23,6 +23,12 @@ async function updateAuthState() {
                 document.head.appendChild(link);
             }
 
+            // If on index page and user is logged in, redirect to dashboard
+            if (window.location.pathname === '/' || window.location.pathname === '/index.html') {
+                window.location.href = '/dashboard';
+                return;
+            }
+
             // If a dashboard header already exists (on dashboard page), just update user info
             let dashboardHeader = document.querySelector('.dashboard-header');
             if (dashboardHeader) {
@@ -106,6 +112,12 @@ async function updateAuthState() {
                 });
             }
         } else {
+            // If on dashboard page and not logged in, redirect to login
+            if (window.location.pathname.startsWith('/dashboard')) {
+                window.location.href = '/auth/login/login_page.html';
+                return;
+            }
+
             // Not logged in: restore body padding-top if it was modified
             const body = document.body;
             if (body.dataset._savedPaddingTop !== undefined) {
