@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pricing Page</title>
+    <title>صفحة الأسعار - CloAI</title>
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;600;700&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="/pricing-page/pricing_page_style.css">
@@ -15,7 +15,7 @@
 <body>
     <header class="main-header">
         <div class="container">
-            <div class="logo">VirtuFit</div>
+            <div class="logo">CloAI</div>
             <nav class="main-nav">
                 <ul>
                     <li><a href="/">الرئيسية</a></li>
@@ -27,41 +27,41 @@
             <a href="/login" class="button primary header-login">تسجيل الدخول</a>
         </div>
     </header>
-    <div class="pricing-container">
-        <h1>الأسعار</h1>
 
-        <div class="pricing-toggle">
-            <span class="toggle-option active">الدفع مرة واحدة</span>
-            <span class="toggle-option">اشتراك</span>
-        </div>
+    <div class="pricing-container">
+        <h1>اختر باقتك وابدأ تجربة CloAI الآن!</h1>
+        <p class="intro">اختر الباقة المناسبة لك وابدأ تجربة الملابس افتراضيًا باستخدام الذكاء الاصطناعي بكل سهولة.</p>
 
         <div class="pricing-cards">
+            <!-- Basic -->
             <div class="pricing-card">
                 <h2>Basic</h2>
                 <p class="price">150 جنيه</p>
-                <p class="features">1 صورة</p>
-                <button class="cta-button">ابدأ الآن</button>
+                <p class="features">1 صورة فقط لتجربة سريعة وفورية.</p>
+                <button class="cta-button">جرّب الآن</button>
             </div>
 
+            <!-- Pro -->
             <div class="pricing-card pro-card">
                 <div class="pro-badge">الأكثر شعبية</div>
                 <h2>Pro</h2>
                 <p class="price">600 جنيه</p>
-                <p class="features">5 صور</p>
-                <button class="cta-button primary">ابدأ الآن</button>
+                <p class="features">5 صور لتجربة متنوعة وبجودة عالية.</p>
+                <button class="cta-button primary">ابدأ تجربتك المميزة</button>
             </div>
 
+            <!-- Brand Pack -->
             <div class="pricing-card">
                 <h2>Brand Pack</h2>
                 <p class="price">2000 جنيه</p>
-                <p class="features">20 صورة</p>
-                <button class="cta-button">ابدأ الآن</button>
+                <p class="features">20 صورة – مثالي للمتاجر والعلامات التجارية.</p>
+                <button class="cta-button">احصل على الباقة الكاملة</button>
             </div>
         </div>
     </div>
 
     <script>
-        // Nav toggle for pricing page (same as index.html)
+        // Nav toggle for pricing page
         const navToggle = document.querySelector('.nav-toggle');
         const mainNav = document.querySelector('.main-nav');
 

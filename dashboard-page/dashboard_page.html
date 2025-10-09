@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VirtuFit - لوحة التحكم</title>
+    <title>CloAI - لوحة التحكم</title>
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;600;700&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -13,36 +13,44 @@
 
 <body>
     <div class="page-wrapper dashboard-page">
+
+        <!-- Header -->
         <header class="dashboard-header">
-            <div class="container">
-                <div class="logo">VirtuFit</div>
+            <div class="container header-container">
+                <div class="logo">CloAI</div>
                 <nav class="dashboard-nav">
-                    <ul>
-                        <li><a href="#" class="active">Dashboard</a></li>
-                        <li><a href="#">Try-On</a></li>
-                        <li><a href="#">Gallery</a></li>
-                        <li><a href="#">Pricing</a></li>
-                        <li><a href="#" class="logout-btn">تسجيل الخروج</a></li>
-                    </ul>
+
                 </nav>
                 <div class="user-info">
-                    <i class="fas fa-user-circle"></i>
-                    <span>...</span>
+                    <i class="fas fa-user-circle" id="profileIcon"></i>
+                    <span>اسم المستخدم</span>
+                    <ul class="profile-menu hidden" id="profileMenu">
+                        <li><a href="#" class="logout-btn">تسجيل الخروج</a></li>
+                    </ul>
                 </div>
+
                 <button class="nav-toggle" aria-label="Toggle navigation">&#9776;</button>
             </div>
         </header>
 
+        <!-- Main Content -->
         <main class="dashboard-content container">
+
+            <!-- Hero Section -->
             <section class="dashboard-hero">
                 <h1>مرحبًا! ابدأ تجربة تركيب التيشيرت على الموديلات الآن.</h1>
-                <button class="button primary">ابدأ تجربة جديدة</button>
+                <!-- <button class="button primary">ابدأ تجربة جديدة</button> -->
             </section>
 
+            <!-- Try-On Form + Previous Orders -->
             <section class="tryon-section">
+
+                <!-- Try-On Form Card -->
                 <div class="tryon-form-card">
                     <h2>نموذج AI Try-On</h2>
                     <form id="tryOnForm">
+
+                        <!-- Model Selection -->
                         <div class="form-group">
                             <label for="modelSelect">اختر الموديل:</label>
                             <div class="model-selection-wrapper">
@@ -56,6 +64,7 @@
                             </div>
                         </div>
 
+                        <!-- File Upload -->
                         <div class="form-group">
                             <label>ارفع التيشيرت (PNG/JPG):</label>
                             <div class="file-upload-area" id="fileUploadArea">
@@ -70,28 +79,33 @@
                             </div>
                         </div>
 
-                        <div class="form-group">
+                        <!-- Background Options -->
+                        <!-- <div class="form-group">
                             <label>خيارات الخلفية:</label>
                             <div class="background-options">
                                 <label><input type="radio" name="background" value="white" checked> أبيض</label>
                                 <label><input type="radio" name="background" value="studio"> استوديو</label>
                                 <label><input type="radio" name="background" value="street"> شارع</label>
                             </div>
-                        </div>
+                        </div> -->
 
-                        <div class="form-group">
+                        <!-- Additional Notes -->
+                        <!-- <div class="form-group">
                             <label for="notes">تعليمات إضافية (اختياري):</label>
                             <textarea id="notes" name="notes" rows="3"
                                 placeholder="مثال: ارفع التيشيرت للأعلى قليلاً، خلفية بيضاء ناعمة..."></textarea>
-                        </div>
+                        </div> -->
 
+                        <!-- Submit Button -->
                         <button type="submit" class="button primary process-button">
                             <span class="button-text">ابدأ المعالجة</span>
                             <span class="loading-spinner hidden"><i class="fas fa-spinner fa-spin"></i></span>
                         </button>
+
                     </form>
                 </div>
 
+                <!-- Previous Orders Card -->
                 <div class="previous-orders-card">
                     <h2>الطلبات السابقة</h2>
                     <div id="previousOrdersGrid" class="orders-grid">
@@ -107,8 +121,10 @@
                         </div>
                     </div>
                 </div>
+
             </section>
-            <!-- --- AI Try-On Results Section --- -->
+
+            <!-- AI Try-On Results -->
             <section class="tryon-results-section">
                 <h2>النتائج النهائية</h2>
                 <p class="muted">هنا ستظهر الصور الناتجة بعد المعالجة بالذكاء الاصطناعي 👇</p>
@@ -120,13 +136,14 @@
 
         </main>
 
+        <!-- Footer -->
         <footer class="simple-footer">
             <div class="footer-links">
                 <a href="#">الأسعار</a>
                 <a href="#">الخصوصية</a>
                 <a href="#">الشروط</a>
             </div>
-            <p>&copy; 2023 VirtuFit. جميع الحقوق محفوظة.</p>
+            <p>&copy; 2023 CloAI. جميع الحقوق محفوظة.</p>
             <div class="social-icons">
                 <a href="#" target="_blank" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
                 <a href="#" target="_blank" aria-label="Behance"><i class="fab fa-behance"></i></a>
@@ -134,6 +151,7 @@
             </div>
         </footer>
 
+        <!-- Toast Notifications -->
         <div class="toast-notification success hidden" id="processingSuccessToast">
             <i class="fas fa-check-circle"></i>
             <span>تم إرسال طلبك بنجاح!</span>
@@ -146,6 +164,7 @@
             <i class="fas fa-exclamation-circle"></i>
             <span>يرجى ملء جميع الحقول المطلوبة.</span>
         </div>
+
     </div>
 
     <script src="/dashboard-page/dashboard_page_script.js"></script>

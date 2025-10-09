@@ -1,3 +1,19 @@
+const profileIcon = document.getElementById('profileIcon');
+const profileMenu = document.getElementById('profileMenu');
+
+profileIcon.addEventListener('click', () => {
+    profileMenu.classList.toggle('hidden');
+});
+
+// إخفاء القائمة لو ضغطت برة البروفايل
+document.addEventListener('click', (e) => {
+    if (!profileIcon.contains(e.target) && !profileMenu.contains(e.target)) {
+        profileMenu.classList.add('hidden');
+    }
+});
+
+
+
 document.addEventListener('DOMContentLoaded', () => {
     // --- Authentication Check ---
     const checkAuth = async () => {
@@ -414,16 +430,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 <img src="${order.processedImage}" alt="Processed T-shirt" class="processed-img">
                 <span class="status-badge ${order.status.toLowerCase()}">${order.status === 'Processing' ? 'جاري المعالجة' : 'تم'}</span>
             </div>
-            <h3>${modelNameFromId}</h3>
+            
             <p>تم الطلب: ${new Date().toLocaleDateString('ar-EG')}</p>
-            <div class="buttons">
-                <button class="button secondary download-btn ${order.status === 'Processing' ? 'hidden' : ''}">
-                    <i class="fas fa-download"></i> تحميل
-                </button>
-                <button class="button secondary duplicate-btn">
-                    <i class="fas fa-copy"></i> تكرار
-                </button>
-            </div>
+          <div class="buttons">
+    <button class="button secondary download-btn ${order.status === 'Processing' ? 'hidden' : ''}">
+        <i class="fas fa-download"></i> تحميل
+    </button>
+</div>
+
         `;
         previousOrdersGrid.prepend(orderItem); // Add new orders to the top
 
@@ -434,12 +448,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 // In a real app, trigger actual download
             });
         }
-        orderItem.querySelector('.duplicate-btn').addEventListener('click', () => {
-            alert(`تكرار الطلب رقم ${order.id}`);
-            // In a real app, pre-fill form or re-submit
-        });
+        // orderItem.querySelector('.duplicate-btn').addEventListener('click', () => {
+        //     alert(`تكرار الطلب رقم ${order.id}`);
+        //     // In a real app, pre-fill form or re-submit
+        // });
     }
 
     // Load initial orders when the page loads
     loadPreviousOrders();
 });
+
