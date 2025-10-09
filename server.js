@@ -15,7 +15,6 @@ const fetch = global.fetch || require('node-fetch');
 const multer = require('multer');
 const { Configuration, OpenAIApi } = require('openai');
 
-
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -353,11 +352,6 @@ app.get(['/register', '/signup'], async (req, res) => {
 // صفحة لوحة التحكم
 app.get('/dashboard', verifyToken, requirePaid, (req, res) => {
 	res.sendFile(path.join(__dirname, 'dashboard-page', 'dashboard_page.html'));
-});
-
-// AI Dashboard (Next.js route)
-app.get('/ai-dashboard', verifyToken, requirePaid, (req, res) => {
-	res.redirect('/dashboard');
 });
 
 // تسجيل الخروج
