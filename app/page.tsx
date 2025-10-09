@@ -21,7 +21,7 @@ export default function Dashboard() {
       alert('Please select a model and upload a clothing image')
       return
     }
-    //d
+
 
     setIsGenerating(true)
     setProgress(0)
@@ -168,8 +168,8 @@ export default function Dashboard() {
               onClick={handleGenerate}
               disabled={!selectedModel || !uploadedImage || isGenerating}
               className={`btn-primary text-lg px-8 py-3 ${(!selectedModel || !uploadedImage || isGenerating)
-                  ? 'opacity-50 cursor-not-allowed'
-                  : 'hover:scale-105 transform transition-transform'
+                ? 'opacity-50 cursor-not-allowed'
+                : 'hover:scale-105 transform transition-transform'
                 }`}
             >
               {isGenerating ? (
