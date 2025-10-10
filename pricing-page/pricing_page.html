@@ -17,18 +17,22 @@
 <body>
     <header class="main-header">
         <div class="container">
-            <a href="/login" class="button primary header-login">تسجيل الدخول</a>
+            <a href="/" class="logo">CloyAi</a>
+
             <nav class="main-nav">
-                <ul>
+                <ul class="nav-menu">
                     <li><a href="/">الرئيسية</a></li>
                     <li><a href="/pricing-page">الأسعار</a></li>
                     <li><a href="/contact-page">تواصل معنا</a></li>
+                    <li class="mobile-login-item"><a href="/login" class="mobile-login-link">تسجيل الدخول</a></li>
                 </ul>
             </nav>
-            <button class="nav-toggle" aria-label="Toggle navigation">&#9776;</button>
 
-            <a href="/" class="logo">CloyAi</a>
+            <a href="/login" class="button primary header-login desktop-login">تسجيل الدخول</a>
 
+            <button class="nav-toggle" aria-label="Toggle navigation">
+                <span class="hamburger-icon">&#9776;</span>
+            </button>
         </div>
     </header>
 
