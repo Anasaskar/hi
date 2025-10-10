@@ -1,5 +1,5 @@
 require('dotenv').config();
-console.log("🧩 Current MONGO_URI:", process.env.MONGO_URI);
+console.log(" Current MONGO_URI:", process.env.MONGO_URI);
 const FormData = require('form-data');
 const axios = require('axios');
 const express = require('express');
@@ -8,6 +8,7 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
+const session = require('express-session');
 const cors = require('cors');
 const fs = require('fs');
 const { promisify } = require('util');
@@ -15,6 +16,10 @@ const User = require('./models/User');
 const fetch = global.fetch || require('node-fetch');
 const multer = require('multer');
 const { Configuration, OpenAIApi } = require('openai');
+
+// Import modular authentication
+const passport = require('./config/passport');
+const authRoutes = require('./routes/authRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -28,10 +33,25 @@ app.use(cors({
 	credentials: true
 }));
 
+// Session middleware for passport (required for OAuth)
+app.use(session({
+	secret: process.env.SESSION_SECRET || 'your-session-secret-change-in-production',
+	resave: false,
+	saveUninitialized: false,
+	cookie: { 
+		secure: process.env.NODE_ENV === 'production', // HTTPS only in production
+		maxAge: 24 * 60 * 60 * 1000 // 24 hours
+	}
+}));
+
+// Initialize passport
+app.use(passport.initialize());
+app.use(passport.session());
+
 // الاتصال بقاعدة البيانات
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/virtufit';
 mongoose.connect(MONGO_URI)
-	.then(() => console.log('✅ MongoDB connected'))
+	.then(() => console.log(' MongoDB connected'))
 	.catch(err => console.error('MongoDB error:', err));
 
 // Multer configuration for file uploads
@@ -312,6 +332,9 @@ function mailApiBase() {
 // ========= STATIC FILES =========
 app.use(express.static(path.join(__dirname)));
 
+// ========= AUTHENTICATION ROUTES (Modular) =========
+app.use('/api/auth', authRoutes);
+
 // ========= PAGE ROUTES =========
 
 app.get('/', (req, res) => {
@@ -516,14 +539,10 @@ app.get('/api/tryon/status/:taskId', verifyToken, requirePaid, async (req, res) 
 		res.status(500).json({
 			ok: false,
 			message: 'Failed to check status',
-			error: error.message
+			error: error.message,
+			stack: error.stack
 		});
 	}
-});
-
-app.post('/api/auth/logout', (req, res) => {
-	res.clearCookie('token');
-	res.json({ message: 'تم تسجيل الخروج بنجاح' });
 });
 
 app.get('/api/user/info', verifyToken, (req, res) => {
@@ -570,110 +589,6 @@ app.get('/api/orders', verifyToken, requirePaid, async (req, res) => {
 	} catch (err) {
 		console.error('Failed to fetch orders', err);
 		res.status(500).json({ ok: false, message: 'Failed to fetch orders' });
-	}
-});
-
-// Registration endpoint
-app.post('/api/auth/register', async (req, res) => {
-	try {
-		const { fullName, email, password } = req.body;
-		if (!fullName || !email || !password)
-			return res.status(400).json({ message: 'ارجع اكمل الحقول' });
-
-		const existing = await User.findOne({ email: email.toLowerCase() });
-		if (existing)
-			return res.status(409).json({ message: 'البريد الإلكتروني مستخدم مسبقًا' });
-
-		const passwordHash = await bcrypt.hash(password, 12);
-		const confirmToken = require('crypto').randomBytes(20).toString('hex');
-		const confirmExpires = Date.now() + 24 * 3600 * 1000;
-
-		const user = new User({
-			fullName,
-			email: email.toLowerCase(),
-			passwordHash,
-			emailConfirmToken: confirmToken,
-			emailConfirmExpires: confirmExpires
-		});
-		await user.save();
-		console.log("✅ New user saved:", user);
-
-		const confirmUrl = `${req.protocol}://${req.get('host')}/auth/confirm/confirm_page.html?token=${confirmToken}&email=${encodeURIComponent(user.email)}`;
-		console.log('Confirmation URL:', confirmUrl);
-
-		res.status(201).json({ message: 'تم إنشاء الحساب بنجاح. يجب تأكيد البريد الإلكتروني.' });
-	} catch (err) {
-		console.error(err);
-		res.status(500).json({ message: 'خطأ في الخادم' });
-	}
-});
-
-// Login endpoint
-app.post('/api/auth/login', async (req, res) => {
-	try {
-		const { email, password } = req.body;
-		console.log("📩 محاولة تسجيل دخول:", email);
-
-		const user = await User.findOne({ email: email.trim().toLowerCase() });
-		console.log("🧩 نتيجة البحث:", user ? "تم العثور على المستخدم" : "❌ المستخدم غير موجود");
-
-		if (!user) {
-			return res.status(401).json({ message: 'لا يوجد مستخدم بهذا البريد الإلكتروني' });
-		}
-
-		if (!user.emailConfirmed) {
-			return res.status(403).json({ message: 'يجب تأكيد البريد الإلكتروني قبل تسجيل الدخول.' });
-		}
-
-		const isMatch = await bcrypt.compare(password, user.passwordHash);
-		console.log("🔑 مطابقة كلمة المرور:", isMatch);
-
-		if (!isMatch) {
-			return res.status(401).json({ message: 'كلمة المرور غير صحيحة' });
-		}
-
-		const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET || 'secret', { expiresIn: '7d' });
-		res.cookie('token', token, { httpOnly: true });
-
-		console.log("✅ تسجيل الدخول ناجح للمستخدم:", user.email);
-		res.json({ message: 'تم تسجيل الدخول بنجاح' });
-	} catch (err) {
-		console.error("💥 خطأ في تسجيل الدخول:", err);
-		res.status(500).json({ message: 'خطأ في الخادم' });
-	}
-});
-
-app.post('/api/auth/upgrade', verifyToken, async (req, res) => {
-	try {
-		const user = req.user;
-		if (!user) return res.status(401).json({ message: 'غير مسموح' });
-
-		user.type = 'pay';
-		await user.save();
-		res.json({ message: 'تم تفعيل الخطة المدفوعة' });
-	} catch (err) {
-		console.error('Error upgrading user:', err);
-		res.status(500).json({ message: 'خطأ في الخادم' });
-	}
-});
-
-app.post('/api/auth/confirm', async (req, res) => {
-	try {
-		const { email, token } = req.body;
-		if (!email || !token) return res.status(400).json({ message: 'Missing email or token' });
-		const user = await User.findOne({ email: email.toLowerCase(), emailConfirmToken: token });
-		if (!user) return res.status(400).json({ message: 'Invalid token or email' });
-		if (user.emailConfirmExpires && Date.now() > user.emailConfirmExpires)
-			return res.status(400).json({ message: 'Token expired' });
-
-		user.emailConfirmed = true;
-		user.emailConfirmToken = undefined;
-		user.emailConfirmExpires = undefined;
-		await user.save();
-		res.json({ message: 'Email confirmed' });
-	} catch (err) {
-		console.error('Confirm error', err);
-		res.status(500).json({ message: 'Server error' });
 	}
 });
 
