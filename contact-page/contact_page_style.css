@@ -5,210 +5,287 @@ body {
     min-height: 100vh;
     margin: 0;
     color: var(--text-primary);
-
-
     line-height: 1.6;
-    display: flex;
-    flex-direction: column;
 }
 
-.contact-about-container {
-    background-color: var(--card-bg);
-    border-radius: 20px;
-    box-shadow: var(--shadow-lg);
-    border: 1px solid var(--border-color);
-    display: flex;
-    max-width: 1000px;
-    width: 90%;
-    overflow: hidden;
-    margin: 100px auto 40px;
-    flex-shrink: 0;
+.main-content {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 100px 20px 60px;
 }
 
-/* About Section Styling */
-.about-section {
-    flex: 1;
-    padding: 40px;
-    background-color: var(--bg-tertiary);
-    border-top-right-radius: 20px;
-    border-bottom-right-radius: 20px;
-}
-
-.about-section h2 {
-    font-size: 2.2em;
-    color: var(--text-primary);
-    margin-bottom: 25px;
-}
-
-.about-section p {
-    font-size: 1.05em;
-    color: var(--text-secondary);
-    margin-bottom: 30px;
-}
-
-.map-placeholder {
-    margin-top: 30px;
+/* Hero Section */
+.about-hero {
     text-align: center;
+    margin-bottom: 80px;
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
-.map-placeholder img {
-    max-width: 100%;
-    height: auto;
-    border-radius: 10px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    margin-bottom: 10px;
-}
-
-.map-placeholder p {
-    font-size: 0.9em;
-    color: #777;
-}
-
-/* Contact Form Section Styling */
-.contact-form-section {
-    flex: 1;
-    padding: 40px;
-    background-color: var(--card-bg);
-    border-top-left-radius: 20px;
-    border-bottom-left-radius: 20px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-}
-
-.contact-form-section h2 {
-    font-size: 2.2em;
-    color: var(--text-primary);
-    margin-bottom: 25px;
-    text-align: center;
-}
-
-.contact-form {
-    margin-bottom: 30px;
-}
-
-.form-group {
+.about-hero h1 {
+    font-size: 3.5em;
+    font-weight: 700;
     margin-bottom: 20px;
-}
-
-.form-group label {
-    display: block;
-    font-size: 1em;
     color: var(--text-primary);
-    margin-bottom: 8px;
-    font-weight: 600;
 }
 
-.form-group input[type="text"],
-.form-group input[type="email"],
-.form-group textarea {
-    width: calc(100% - 20px);
-    padding: 12px 10px;
-    border: 1px solid var(--input-border);
-    background-color: var(--input-bg);
-    border-radius: 8px;
-    font-size: 1em;
-    color: var(--text-primary);
-    transition: border-color 0.3s ease, box-shadow 0.3s ease;
-    font-family: 'IBM Plex Sans Arabic', sans-serif;
-}
-
-.form-group input:focus,
-.form-group textarea:focus {
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(167, 243, 0, 0.2);
-    outline: none;
-}
-
-.form-group textarea {
-    resize: vertical;
-    /* Allow vertical resizing */
-    min-height: 100px;
-}
-
-.submit-button {
-    background-color: var(--primary-color);
-    color: var(--primary-text);
-    border: none;
-    padding: 15px 30px;
-    border-radius: 30px;
-    font-size: 1.1em;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-    width: 100%;
-    max-width: 250px;
-    display: block;
+.hero-subtitle {
+    font-size: 1.3em;
+    color: var(--text-secondary);
+    line-height: 1.7;
+    max-width: 700px;
     margin: 0 auto;
 }
 
-.submit-button:hover {
-    background-color: var(--primary-hover);
-    transform: translateY(-2px);
+/* About Cards Grid */
+.about-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 30px;
+    margin-bottom: 100px;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
-/* Social Links Styling */
-.social-links {
-    text-align: center;
-    margin-top: 30px;
+.about-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    padding: 40px;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(20px);
 }
 
-.social-links a {
-    color: var(--text-secondary);
-    font-size: 1.8em;
-    margin: 0 15px;
-    transition: color 0.3s ease;
+.about-card:hover {
+    transform: translateY(-8px);
+    background: var(--card-hover);
+    border-color: rgba(167, 243, 0, 0.3);
+    box-shadow: var(--shadow-lg);
 }
 
-.social-links a:hover {
+.card-icon {
+    width: 70px;
+    height: 70px;
+    background: linear-gradient(135deg, rgba(167, 243, 0, 0.1), rgba(167, 243, 0, 0.05));
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 24px;
+    border: 2px solid rgba(167, 243, 0, 0.2);
+}
+
+.card-icon i {
+    font-size: 2em;
     color: var(--primary-color);
 }
 
+.about-card:hover .card-icon {
+    transform: scale(1.1);
+    box-shadow: 0 10px 30px rgba(167, 243, 0, 0.3);
+}
+
+.about-card h3 {
+    font-size: 1.7em;
+    margin-bottom: 16px;
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.about-card p {
+    font-size: 1em;
+    color: var(--text-secondary);
+    line-height: 1.7;
+}
+
+/* Values Section */
+.values-section {
+    text-align: center;
+    margin-bottom: 100px;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.values-section h2 {
+    font-size: 2.8em;
+    margin-bottom: 60px;
+    font-weight: 700;
+}
+
+.values-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 30px;
+}
+
+.value-item {
+    padding: 30px 20px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    transition: all 0.3s ease;
+}
+
+.value-item:hover {
+    transform: translateY(-5px);
+    border-color: rgba(167, 243, 0, 0.2);
+    background: var(--bg-tertiary);
+}
+
+.value-item i {
+    font-size: 2.5em;
+    color: var(--primary-color);
+    margin-bottom: 16px;
+    display: block;
+}
+
+.value-item h4 {
+    font-size: 1.3em;
+    margin-bottom: 10px;
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.value-item p {
+    font-size: 0.95em;
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+/* CTA Section */
+.cta-section {
+    text-align: center;
+    padding: 80px 40px;
+    background: linear-gradient(135deg, rgba(167, 243, 0, 0.1), rgba(167, 243, 0, 0.05));
+    border-radius: 24px;
+    border: 1px solid rgba(167, 243, 0, 0.2);
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.cta-section h2 {
+    font-size: 2.5em;
+    margin-bottom: 20px;
+    font-weight: 700;
+}
+
+.cta-section p {
+    font-size: 1.2em;
+    color: var(--text-secondary);
+    margin-bottom: 40px;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.cta-button {
+    display: inline-block;
+    padding: 18px 48px;
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
+    color: var(--primary-text);
+    text-decoration: none;
+    border-radius: 12px;
+    font-size: 1.1em;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(167, 243, 0, 0.3);
+}
+
+.cta-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(167, 243, 0, 0.4);
+}
+
 /* Responsive Adjustments */
-@media (max-width: 850px) {
-    .contact-about-container {
-        flex-direction: column;
-        width: 95%;
+@media (max-width: 992px) {
+    .about-hero h1 {
+        font-size: 2.8em;
     }
 
-    .about-section,
-    .contact-form-section {
-        border-radius: 0;
-        /* Remove specific border-radius for column layout */
-        padding: 30px;
+    .hero-subtitle {
+        font-size: 1.1em;
     }
 
-    .about-section {
-        border-bottom: 1px solid #eee;
-        /* Add separator */
+    .about-grid {
+        grid-template-columns: 1fr;
+        gap: 25px;
     }
 
-    .contact-form-section h2,
-    .about-section h2 {}
-
-    .submit-button {
-        max-width: 100%;
-        /* Full width button on smaller screens */
+    .values-grid {
+        grid-template-columns: repeat(2, 1fr);
     }
 }
 
-@media (max-width: 550px) {
-    /* .contact-about-container {
-        margin: 20px 0;
-    } */
-
-    .about-section h2,
-    .contact-form-section h2 {
-        font-size: 1.8em;
-        margin-bottom: 20px;
+@media (max-width: 768px) {
+    .main-content {
+        padding: 80px 16px 40px;
     }
 
-    .about-section p {
+    .about-hero h1 {
+        font-size: 2.2em;
+        color: var(--text-primary);
+    }
+
+    .hero-subtitle {
         font-size: 1em;
     }
 
-    .social-links a {
-        font-size: 1.5em;
-        margin: 0 10px;
+    .about-hero {
+        margin-bottom: 50px;
+    }
+
+    .about-grid {
+        margin-bottom: 60px;
+    }
+
+    .about-card {
+        padding: 32px 24px;
+    }
+
+    .card-icon {
+        width: 60px;
+        height: 60px;
+    }
+
+    .card-icon i {
+        font-size: 1.7em;
+    }
+
+    .about-card h3 {
+        font-size: 1.4em;
+    }
+
+    .values-section h2 {
+        font-size: 2.2em;
+        margin-bottom: 40px;
+    }
+
+    .values-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .value-item {
+        padding: 24px 16px;
+    }
+
+    .cta-section {
+        padding: 50px 24px;
+    }
+
+    .cta-section h2 {
+        font-size: 2em;
+    }
+
+    .cta-section p {
+        font-size: 1em;
+    }
+
+    .cta-button {
+        padding: 16px 36px;
+        font-size: 1em;
     }
 }

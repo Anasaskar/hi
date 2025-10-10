@@ -29,8 +29,18 @@ const DEFAULT_TRANSLATIONS = {
         upgradeNotice: 'You need a paid subscription to access the dashboard'
     },
     hero: {
+        badge: '🚀 AI-Powered Photography',
         title: 'Transform Your Products into Professional Photoshoots Without a Camera',
-        subtitle: 'Unleash the power of AI to create stunning product images at minimal cost and in record time.'
+        subtitle: 'Unleash the power of AI to create stunning product images at minimal cost and in record time.',
+        cta: {
+            start: 'Get Started Free',
+            demo: 'View Gallery'
+        },
+        stats: {
+            images: 'Images Generated',
+            users: 'Happy Users',
+            savings: 'Cost Savings'
+        }
     },
     features: {
         title: 'Why CloyAi?',
@@ -105,7 +115,7 @@ const DEFAULT_TRANSLATIONS = {
         },
         offerTitle: 'What We Offer',
         offer: 'AI-powered virtual try-on technology, HD image generation, fast processing, and dedicated support for all your product photography needs.',
-        contactUsTitle: 'Contact Us',
+        contactUsTitle: 'Ready to Transform Your Product Photography?',
         contactUs: 'Have questions? Reach out to us and we\'ll be happy to help you transform your product photography with AI.'
     },
     login: {
