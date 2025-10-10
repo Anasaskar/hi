@@ -1,18 +1,29 @@
 const profileIcon = document.getElementById('profileIcon');
 const profileMenu = document.getElementById('profileMenu');
+const userCaret = document.querySelector('.user-caret');
+const userNameSpanHeader = document.querySelector('.user-info span');
+const userInfoContainer = document.querySelector('.user-info');
 
-profileIcon.addEventListener('click', () => {
+function toggleProfileMenu(e) {
+    e?.stopPropagation();
     profileMenu.classList.toggle('hidden');
-});
+    if (userInfoContainer) {
+        userInfoContainer.classList.toggle('open', !profileMenu.classList.contains('hidden'));
+    }
+}
 
-// إخفاء القائمة لو ضغطت برة البروفايل
+if (profileIcon) profileIcon.addEventListener('click', toggleProfileMenu);
+if (userCaret) userCaret.addEventListener('click', toggleProfileMenu);
+if (userNameSpanHeader) userNameSpanHeader.addEventListener('click', toggleProfileMenu);
+
+// Hide menu when clicking outside
 document.addEventListener('click', (e) => {
-    if (!profileIcon.contains(e.target) && !profileMenu.contains(e.target)) {
+    const isInside = e.target.closest('.user-info') || e.target.closest('.profile-menu');
+    if (!isInside) {
         profileMenu.classList.add('hidden');
+        if (userInfoContainer) userInfoContainer.classList.remove('open');
     }
 });
-
-
 
 document.addEventListener('DOMContentLoaded', () => {
     // --- Authentication Check ---
@@ -44,10 +55,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (userNameSpan) {
                     userNameSpan.textContent = userData.fullName;
                 }
-                // Update welcome message
+                // Update mobile user name in menu
+                const mobileUserNameSpan = document.querySelector('.mobile-user-name');
+                if (mobileUserNameSpan) mobileUserNameSpan.textContent = userData.fullName;
+                // Update welcome message (English)
                 const welcomeMessage = document.querySelector('.dashboard-hero h1');
                 if (welcomeMessage) {
-                    welcomeMessage.textContent = `مرحبًا ${userData.fullName}! ابدأ تجربة تركيب التيشيرت على الموديلات الآن.`;
+                    welcomeMessage.textContent = `Welcome ${userData.fullName}! Start trying your T‑shirt on models.`;
                 }
             }
         } catch (error) {
@@ -85,11 +99,53 @@ document.addEventListener('DOMContentLoaded', () => {
         dashboardNav.classList.toggle('active');
     });
 
+    // --- Theme Toggle (dropdown and mobile menu) ---
+    const themeToggleItems = document.querySelectorAll('.theme-toggle-item');
+    function setThemeIconFor(el, theme){
+        const icon = el?.querySelector('i');
+        if (icon) icon.className = theme==='dark' ? 'fas fa-sun' : 'fas fa-moon';
+    }
+    // Init from saved
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    themeToggleItems.forEach(el => setThemeIconFor(el, savedTheme));
+    themeToggleItems.forEach(el => {
+        el.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const current = document.documentElement.getAttribute('data-theme') || 'light';
+            const next = current === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('theme', next);
+            themeToggleItems.forEach(i => setThemeIconFor(i, next));
+            profileMenu.classList.add('hidden');
+            mobileProfile?.classList.remove('open');
+        });
+    });
+
+    // --- Mobile profile collapsible ---
+    const mobileProfile = document.querySelector('.mobile-profile');
+    const mobileHeader = document.querySelector('.mobile-profile-header');
+    mobileHeader?.addEventListener('click', () => {
+        mobileProfile?.classList.toggle('open');
+    });
+
     // --- Model Selection with Preview ---
     const modelSelect = document.getElementById('modelSelect');
     const selectedModelPreview = document.getElementById('selectedModelPreview');
     const modelImage = selectedModelPreview.querySelector('.model-image');
     const modelName = selectedModelPreview.querySelector('.model-name');
+    // Toggle between site models and custom model upload
+    const useSiteModels = document.getElementById('useSiteModels');
+    const useCustomModel = document.getElementById('useCustomModel');
+    const siteModelsBlock = document.getElementById('siteModelsBlock');
+    const customModelBlock = document.getElementById('customModelBlock');
+    const modelUpload = document.getElementById('modelUpload');
+    const browseModelFiles = document.getElementById('browseModelFiles');
+    const modelFilePreview = document.getElementById('modelFilePreview');
+    const modelFilePreviewImg = modelFilePreview?.querySelector('img');
+    const modelFilePreviewName = modelFilePreview?.querySelector('.file-name');
+    const removeModelFileBtn = document.getElementById('removeModelFileBtn');
 
     // Will store models loaded from server
     let models = [];
@@ -137,6 +193,64 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // Handle model source toggle
+    function updateModelSourceUI() {
+        const useCustom = useCustomModel?.checked;
+        if (useCustom) {
+            siteModelsBlock.classList.add('hidden');
+            customModelBlock.classList.remove('hidden');
+        } else {
+            customModelBlock.classList.add('hidden');
+            siteModelsBlock.classList.remove('hidden');
+        }
+    }
+    useSiteModels?.addEventListener('change', updateModelSourceUI);
+    useCustomModel?.addEventListener('change', updateModelSourceUI);
+    updateModelSourceUI();
+
+    // Custom model upload interactions
+    browseModelFiles?.addEventListener('click', () => modelUpload.click());
+    customModelBlock?.addEventListener('click', (e) => {
+        if (!e.target.closest('.remove-file-btn') && e.target !== modelUpload && e.target !== browseModelFiles) {
+            modelUpload.click();
+        }
+    });
+    // Drag & drop for custom model
+    ;['dragenter','dragover','dragleave','drop'].forEach(ev => customModelBlock?.addEventListener(ev, preventDefaults, false));
+    ;['dragenter','dragover'].forEach(ev => customModelBlock?.addEventListener(ev, () => customModelBlock.classList.add('highlight', 'drag-over'), false));
+    ;['dragleave','drop'].forEach(ev => customModelBlock?.addEventListener(ev, () => customModelBlock.classList.remove('highlight', 'drag-over'), false));
+    customModelBlock?.addEventListener('drop', (e) => {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+        handleModelFiles(files);
+    }, false);
+    modelUpload?.addEventListener('change', (e) => handleModelFiles(e.target.files));
+
+    function handleModelFiles(files) {
+        if (!files || files.length === 0) return;
+        const file = files[0];
+        if (file.type.match('image.*')) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                if (modelFilePreviewImg) modelFilePreviewImg.src = e.target.result;
+                if (modelFilePreviewName) modelFilePreviewName.textContent = file.name;
+                modelFilePreview?.classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
+        } else {
+            alert('Please upload an image file (PNG, JPG).');
+            if (modelUpload) modelUpload.value = '';
+        }
+    }
+
+    removeModelFileBtn?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        modelFilePreview?.classList.add('hidden');
+        if (modelFilePreviewImg) modelFilePreviewImg.src = '';
+        if (modelFilePreviewName) modelFilePreviewName.textContent = '';
+        if (modelUpload) modelUpload.value = '';
+    });
+
     // Load models from server when page loads
     loadModels();
 
@@ -169,11 +283,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     ['dragenter', 'dragover'].forEach(eventName => {
-        fileUploadArea.addEventListener(eventName, () => fileUploadArea.classList.add('highlight'), false);
+        fileUploadArea.addEventListener(eventName, () => {
+            fileUploadArea.classList.add('highlight', 'drag-over');
+        }, false);
     });
 
     ['dragleave', 'drop'].forEach(eventName => {
-        fileUploadArea.addEventListener(eventName, () => fileUploadArea.classList.remove('highlight'), false);
+        fileUploadArea.addEventListener(eventName, () => {
+            fileUploadArea.classList.remove('highlight', 'drag-over');
+        }, false);
     });
 
     fileUploadArea.addEventListener('drop', handleDrop, false);
@@ -221,13 +339,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const processingErrorToast = document.getElementById('processingErrorToast');
     const validationErrorToast = document.getElementById('validationErrorToast');
 
-    // Server-side processing: send modelId and cloth file to server endpoint which calls the AI provider
-    async function processImagesOnServer(modelId, clothFile) {
+    // Server-side processing: send either modelId or modelImage, plus cloth file
+    async function processImagesOnServer(modelId, clothFile, customModelFile) {
         const form = new FormData();
-        form.append('modelId', modelId);
-        form.append('cloth', clothFile, clothFile.name);
+        if (customModelFile) {
+            form.append('modelImage', customModelFile, customModelFile.name);
+        } else {
+            form.append('modelId', modelId);
+        }
+        // Server expects field name 'clothImage'
+        form.append('clothImage', clothFile, clothFile.name);
 
-        const response = await fetch('/api/process-tryon', {
+        const response = await fetch('/api/tryon/process', {
             method: 'POST',
             body: form,
             credentials: 'include'
@@ -245,7 +368,10 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
 
         // Basic form validation
-        if (!modelSelect.value || !tshirtUpload.files.length) {
+        const usingCustom = useCustomModel?.checked;
+        const customModelSelected = modelUpload && modelUpload.files && modelUpload.files.length > 0;
+        const siteModelSelected = modelSelect.value;
+        if (!tshirtUpload.files.length || (!usingCustom && !siteModelSelected) || (usingCustom && !customModelSelected)) {
             showToast(validationErrorToast);
             return;
         }
@@ -271,18 +397,19 @@ document.addEventListener('DOMContentLoaded', () => {
             const tshirtImageBase64 = filePreviewImg.src;
 
             // Send to server which will call the AI model (keeps tokens secret)
-            const serverResult = await processImagesOnServer(modelSelect.value, tshirtUpload.files[0]);
+            const customModelFile = usingCustom && customModelSelected ? modelUpload.files[0] : null;
+            const serverResult = await processImagesOnServer(modelSelect.value, tshirtUpload.files[0], customModelFile);
 
             if (serverResult && serverResult.ok) {
                 showToast(processingSuccessToast);
-                // If server returned a processedImageUrl (simulated or real), pass it to addProcessedOrder
-                const processedImageUrl = serverResult.processedImageUrl || null;
-                addProcessedOrder(tshirtUpload.files[0], modelSelect.value, processedImageUrl);
-                showResultInResultsGrid(modelSelect.value, serverResult.imageUrl || processedImageUrl);
+                const processedImageUrl = serverResult.processedImageUrl || serverResult.imageUrl || null;
+                showResultInResultsGrid(modelSelect.value, processedImageUrl);
 
                 tryOnForm.reset();
                 filePreview.classList.add('hidden');
                 selectedModelPreview.classList.add('hidden');
+                // reset custom model if any
+                removeModelFileBtn?.click();
                 tshirtUpload.value = '';
                 modelSelect.value = '';
             } else {
@@ -317,9 +444,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 3000); // Hide after 3 seconds
     }
 
-    // --- Previous Orders / Gallery Section ---
-    const previousOrdersGrid = document.getElementById('previousOrdersGrid');
-
     // --- Show Result Image in Results Section ---
     function showResultInResultsGrid(modelId, processedImageUrl) {
         const resultsGrid = document.getElementById('resultsGrid');
@@ -327,134 +451,84 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (noResultsMessage) noResultsMessage.style.display = 'none';
 
-        const modelName = models.find(m => m.id === modelId)?.name || 'موديل غير معروف';
+            const modelName = models.find(m => m.id === modelId)?.name || 'Model Not Found';
 
         const item = document.createElement('div');
         item.classList.add('result-item');
         item.innerHTML = `
-        <img src="${processedImageUrl}" alt="نتيجة التركيب">
-        <div class="info">
+        <img src="${processedImageUrl}" alt="Processed result">
             <h3>${modelName}</h3>
             <button class="download-btn">
-                <i class="fas fa-download"></i> تحميل الصورة
+                <i class="fas fa-download"></i> Download Image
             </button>
         </div>
     `;
 
-        // download button
-        item.querySelector('.download-btn').addEventListener('click', () => {
-            const link = document.createElement('a');
-            link.href = processedImageUrl;
-            link.download = `tryon_${modelName}.jpg`;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+        // Ensure spinner styles exist
+        ensureDownloadSpinnerStyles();
+        // download button via server proxy using fetch to control loading state
+        const dlBtn = item.querySelector('.download-btn');
+        dlBtn.addEventListener('click', async () => {
+            const fname = `tryon_${modelName}.jpg`;
+            const url = `/api/download?url=${encodeURIComponent(processedImageUrl)}&filename=${encodeURIComponent(fname)}`;
+            await downloadViaProxy(url, fname, dlBtn);
         });
 
         resultsGrid.prepend(item);
     }
 
-
-
-    // Load previous orders from server
-    async function loadPreviousOrders() {
-        previousOrdersGrid.innerHTML = '';
-        try {
-            const res = await fetch('/api/orders', { credentials: 'include' });
-            if (!res.ok) throw new Error('Failed to fetch orders');
-            const data = await res.json();
-            const orders = data.orders || [];
-            if (orders.length === 0) {
-                previousOrdersGrid.innerHTML = '<p class="muted">لا توجد طلبات سابقة</p>';
-                return;
-            }
-            orders.forEach(order => addOrderItemToGrid(order));
-        } catch (err) {
-            console.error('Failed to load previous orders', err);
-            previousOrdersGrid.innerHTML = '<p class="muted">فشل تحميل الطلبات السابقة</p>';
-        }
-    }
-
-    function addProcessedOrder(file, modelId, processedImageUrl) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            const newOrder = {
-                id: Date.now(), // Unique ID
-                tshirtImage: e.target.result,
-                processedImage: processedImageUrl || 'https://via.placeholder.com/150x150/a7f300?text=Processing...', // Placeholder for processing
-                status: 'Processing',
-                model: modelId
-            };
-            addOrderItemToGrid(newOrder);
-
-            // If server provided a processedImageUrl we can mark it as Done immediately, otherwise simulate completion after a delay
-            if (processedImageUrl) {
-                setTimeout(() => {
-                    const orderItem = document.getElementById(`order-item-${newOrder.id}`);
-                    if (orderItem) {
-                        orderItem.querySelector('.status-badge').textContent = 'Done';
-                        orderItem.querySelector('.status-badge').classList.remove('processing');
-                        orderItem.querySelector('.status-badge').classList.add('done');
-                        orderItem.querySelector('.processed-img').src = processedImageUrl;
-                        orderItem.querySelector('.download-btn').classList.remove('hidden'); // Show download button
-                    }
-                }, 800);
-            } else {
-                // Simulate processing completion after a delay
-                setTimeout(() => {
-                    const orderItem = document.getElementById(`order-item-${newOrder.id}`);
-                    if (orderItem) {
-                        orderItem.querySelector('.status-badge').textContent = 'Done';
-                        orderItem.querySelector('.status-badge').classList.remove('processing');
-                        orderItem.querySelector('.status-badge').classList.add('done');
-                        orderItem.querySelector('.processed-img').src = `https://via.placeholder.com/150x150/28a745?text=Done`; // Actual processed image
-                        orderItem.querySelector('.download-btn').classList.remove('hidden'); // Show download button
-                    }
-                }, 5000); // Simulate 5 seconds processing
-            }
-        };
-        reader.readAsDataURL(file);
-    }
-
-
-    function addOrderItemToGrid(order) {
-        const orderItem = document.createElement('div');
-        orderItem.classList.add('order-item');
-        orderItem.id = `order-item-${order.id}`; // Add ID for easy access
-
-        const modelNameFromId = models.find(m => m.id === order.model)?.name || 'موديل غير معروف';
-
-
-        orderItem.innerHTML = `
-            <div class="image-container">
-                <img src="${order.processedImage}" alt="Processed T-shirt" class="processed-img">
-                <span class="status-badge ${order.status.toLowerCase()}">${order.status === 'Processing' ? 'جاري المعالجة' : 'تم'}</span>
-            </div>
-            
-            <p>تم الطلب: ${new Date().toLocaleDateString('ar-EG')}</p>
-          <div class="buttons">
-    <button class="button secondary download-btn ${order.status === 'Processing' ? 'hidden' : ''}">
-        <i class="fas fa-download"></i> تحميل
-    </button>
-</div>
-
-        `;
-        previousOrdersGrid.prepend(orderItem); // Add new orders to the top
-
-        // Add event listeners for download/duplicate if not processing
-        if (order.status === 'Done') {
-            orderItem.querySelector('.download-btn').addEventListener('click', () => {
-                alert(`تحميل الصورة لطلب رقم ${order.id}`);
-                // In a real app, trigger actual download
-            });
-        }
-        // orderItem.querySelector('.duplicate-btn').addEventListener('click', () => {
-        //     alert(`تكرار الطلب رقم ${order.id}`);
-        //     // In a real app, pre-fill form or re-submit
-        // });
-    }
-
-    // Load initial orders when the page loads
-    loadPreviousOrders();
+    // Removed previous orders and gallery logic from dashboard
 });
+
+// Helper: fetch file via proxy and show loading indicator on button
+async function downloadViaProxy(url, filename, buttonEl) {
+    if (!buttonEl) return;
+    const originalHtml = buttonEl.innerHTML;
+    buttonEl.disabled = true;
+    buttonEl.classList.add('downloading');
+    buttonEl.innerHTML = `<span class="download-spinner"></span><span> Preparing...</span>`;
+    try {
+        const res = await fetch(url, { credentials: 'include' });
+        if (!res.ok) {
+            throw new Error('Download failed');
+        }
+        const blob = await res.blob();
+        const objectUrl = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = objectUrl;
+        a.download = filename || 'download.jpg';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(objectUrl);
+    } catch (e) {
+        console.error('Download error:', e);
+    } finally {
+        buttonEl.disabled = false;
+        buttonEl.classList.remove('downloading');
+        buttonEl.innerHTML = originalHtml;
+    }
+}
+
+// Inject minimal spinner styles once
+function ensureDownloadSpinnerStyles() {
+    if (document.getElementById('downloadSpinnerStyles')) return;
+    const style = document.createElement('style');
+    style.id = 'downloadSpinnerStyles';
+    style.textContent = `
+      .download-btn.downloading { position: relative; opacity: 0.9; }
+      .download-spinner {
+        display: inline-block;
+        width: 16px; height: 16px;
+        border: 2px solid rgba(255,255,255,0.4);
+        border-top-color: #ffffff;
+        border-radius: 50%;
+        animation: dl-spin 0.8s linear infinite;
+        vertical-align: -2px;
+        margin-right: 8px;
+      }
+      @keyframes dl-spin { from { transform: rotate(0deg);} to { transform: rotate(360deg);} }
+    `;
+    document.head.appendChild(style);
+}
 

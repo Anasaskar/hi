@@ -1,24 +1,25 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en" dir="ltr">
 
 <head>
     <link rel="icon" type="image/png" href="../../images/Logo.png">
 
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>تأكيد البريد</title>
+    <title>CloyAi - Confirm Email</title>
     <link rel="stylesheet" href="/style.css">
 </head>
 
 <body>
     <div class="container" style="padding-top:120px; text-align:center">
-        <h1>تأكيد البريد الإلكتروني</h1>
-        <p id="status">جارٍ التحقق...</p>
+        <h1 data-i18n="confirm.heading">Confirm Email</h1>
+        <p id="status" data-i18n="confirm.verifying">Verifying...</p>
         <div id="actions" class="hidden">
-            <button id="resendBtn" class="button primary">إعادة إرسال رسالة التأكيد</button>
-            <a href="/login" class="button secondary">العودة لتسجيل الدخول</a>
+            <button id="resendBtn" class="button primary" data-i18n="confirm.resend">Resend confirmation email</button>
+            <a href="/login" class="button secondary" data-i18n="confirm.backToLogin">Back to login</a>
         </div>
     </div>
+    <script src="/navbar-theme.js"></script>
     <script src="/auth/confirm/confirm.js"></script>
 </body>
 

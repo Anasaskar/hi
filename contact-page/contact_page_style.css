@@ -1,51 +1,48 @@
 /* General Styling */
 body {
     font-family: 'IBM Plex Sans Arabic', sans-serif;
-    background-color: #f7f9fc;
-    /* Clean light gray background */
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    background-color: var(--bg-primary);
     min-height: 100vh;
     margin: 0;
-    color: #333;
-    direction: rtl;
-    /* Right-to-left for Arabic */
-    text-align: right;
+    color: var(--text-primary);
+
+
     line-height: 1.6;
+    display: flex;
+    flex-direction: column;
 }
 
 .contact-about-container {
-    background-color: #fff;
+    background-color: var(--card-bg);
     border-radius: 20px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--border-color);
     display: flex;
     max-width: 1000px;
     width: 90%;
     overflow: hidden;
-    /* Ensures borders are rounded correctly */
-    margin: 40px 0;
+    margin: 100px auto 40px;
+    flex-shrink: 0;
 }
 
 /* About Section Styling */
 .about-section {
     flex: 1;
     padding: 40px;
-    background-color: #fefefe;
-    /* Slightly different background for visual separation */
+    background-color: var(--bg-tertiary);
     border-top-right-radius: 20px;
     border-bottom-right-radius: 20px;
 }
 
 .about-section h2 {
     font-size: 2.2em;
-    color: #2c3e50;
+    color: var(--text-primary);
     margin-bottom: 25px;
 }
 
 .about-section p {
     font-size: 1.05em;
-    color: #555;
+    color: var(--text-secondary);
     margin-bottom: 30px;
 }
 
@@ -71,18 +68,17 @@ body {
 .contact-form-section {
     flex: 1;
     padding: 40px;
-    background-color: #fff;
+    background-color: var(--card-bg);
     border-top-left-radius: 20px;
     border-bottom-left-radius: 20px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    /* Pushes social links to bottom */
 }
 
 .contact-form-section h2 {
     font-size: 2.2em;
-    color: #2c3e50;
+    color: var(--text-primary);
     margin-bottom: 25px;
     text-align: center;
 }
@@ -98,7 +94,7 @@ body {
 .form-group label {
     display: block;
     font-size: 1em;
-    color: #444;
+    color: var(--text-primary);
     margin-bottom: 8px;
     font-weight: 600;
 }
@@ -107,21 +103,19 @@ body {
 .form-group input[type="email"],
 .form-group textarea {
     width: calc(100% - 20px);
-    /* Account for padding */
     padding: 12px 10px;
-    border: 1px solid #ddd;
+    border: 1px solid var(--input-border);
+    background-color: var(--input-bg);
     border-radius: 8px;
     font-size: 1em;
-    color: #333;
+    color: var(--text-primary);
     transition: border-color 0.3s ease, box-shadow 0.3s ease;
     font-family: 'IBM Plex Sans Arabic', sans-serif;
-    /* Ensure Arabic font in inputs */
 }
 
 .form-group input:focus,
 .form-group textarea:focus {
-    border-color: #a7f300;
-    /* Lemon green accent on focus */
+    border-color: var(--primary-color);
     box-shadow: 0 0 0 3px rgba(167, 243, 0, 0.2);
     outline: none;
 }
@@ -133,9 +127,8 @@ body {
 }
 
 .submit-button {
-    background-color: #a7f300;
-    /* Lemon green accent */
-    color: #fff;
+    background-color: var(--primary-color);
+    color: var(--primary-text);
     border: none;
     padding: 15px 30px;
     border-radius: 30px;
@@ -146,13 +139,11 @@ body {
     width: 100%;
     max-width: 250px;
     display: block;
-    /* Center the button */
     margin: 0 auto;
-    /* Center the button */
 }
 
 .submit-button:hover {
-    background-color: #92d900;
+    background-color: var(--primary-hover);
     transform: translateY(-2px);
 }
 
@@ -163,16 +154,14 @@ body {
 }
 
 .social-links a {
-    color: #888;
-    /* Gray for social icons */
+    color: var(--text-secondary);
     font-size: 1.8em;
     margin: 0 15px;
     transition: color 0.3s ease;
 }
 
 .social-links a:hover {
-    color: #a7f300;
-    /* Lemon green on hover */
+    color: var(--primary-color);
 }
 
 /* Responsive Adjustments */
@@ -195,9 +184,7 @@ body {
     }
 
     .contact-form-section h2,
-    .about-section h2 {
-        text-align: right;
-    }
+    .about-section h2 {}
 
     .submit-button {
         max-width: 100%;
@@ -206,9 +193,9 @@ body {
 }
 
 @media (max-width: 550px) {
-    .contact-about-container {
+    /* .contact-about-container {
         margin: 20px 0;
-    }
+    } */
 
     .about-section h2,
     .contact-form-section h2 {

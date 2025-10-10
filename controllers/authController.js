@@ -112,7 +112,10 @@ exports.login = async (req, res) => {
         });
 
         console.log("✅ Login successful:", user.email);
-        res.json({ message: 'تم تسجيل الدخول بنجاح' });
+        res.json({ 
+            message: 'تم تسجيل الدخول بنجاح',
+            redirect: '/pricing-page' // Frontend should redirect here
+        });
     } catch (err) {
         console.error("❌ Login error:", err);
         res.status(500).json({ message: 'خطأ في الخادم' });
@@ -170,6 +173,7 @@ exports.logout = (req, res) => {
 // ===================================================================
 // SOCIAL AUTH CALLBACK HANDLER
 // Called after successful OAuth authentication
+// Redirects to /pricing-page after successful login
 // ===================================================================
 exports.socialAuthCallback = async (req, res) => {
     try {
@@ -191,8 +195,8 @@ exports.socialAuthCallback = async (req, res) => {
             maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
         });
 
-        // Redirect to dashboard or home page
-        res.redirect('/dashboard');
+        // Redirect to pricing page after successful login
+        res.redirect('/pricing-page');
     } catch (err) {
         console.error('❌ Social auth callback error:', err);
         res.redirect('/login?error=server_error');

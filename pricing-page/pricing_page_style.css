@@ -1,16 +1,19 @@
         body {
             font-family: 'IBM Plex Sans Arabic', sans-serif;
-            background: linear-gradient(135deg, #f7f9fc 0%, #e9f0f7 100%);
+            background-color: var(--bg-primary);
             margin: 0;
-            color: #333;
-            direction: rtl;
-            text-align: right;
+            color: var(--text-primary);
+
+
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
 
         /* ===== Banner ===== */
         .banner {
-            background: linear-gradient(90deg, #a7f300, #76c500);
-            color: #fff;
+            background: linear-gradient(90deg, var(--primary-color), #76c500);
+            color: var(--primary-text);
             font-weight: 600;
             padding: 15px 25px;
             border-radius: 12px;
@@ -19,7 +22,7 @@
             text-align: center;
             font-size: 1.1em;
             animation: glow 2.5s infinite alternate ease-in-out;
-            box-shadow: 0 4px 15px rgba(167, 243, 0, 0.3);
+            box-shadow: var(--shadow-md);
         }
 
         @keyframes glow {
@@ -33,22 +36,24 @@
         }
 
         .pricing-container {
+            flex: 1;
             text-align: center;
             padding: 80px 20px;
-            max-width: 1200px;
-            margin: auto;
+            /* max-width: 1200px; */
+            /* margin: auto; */
+            /* width: 100%; */
         }
 
         h1 {
             font-size: 3em;
-            color: #2c3e50;
+            color: var(--text-primary);
             margin-bottom: 20px;
         }
 
         p.intro {
             font-size: 1.1rem;
             margin-bottom: 50px;
-            color: #555;
+            color: var(--text-secondary);
         }
 
         /* ===== Pricing Cards ===== */
@@ -64,48 +69,50 @@
         .pricing-card {
             flex: 1 1 320px;
             max-width: 360px;
-            background: linear-gradient(145deg, #ffffff, #f2f4f7);
+            background-color: var(--card-bg);
             border-radius: 25px;
             padding: 40px 30px;
-            box-shadow: 0 15px 45px rgba(0, 0, 0, 0.08);
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border-color);
             width: 320px;
             display: flex;
             flex-direction: column;
             align-items: center;
             position: relative;
-            transition: transform 0.4s ease, box-shadow 0.4s ease;
+            transition: transform 0.4s ease, box-shadow 0.4s ease, background-color 0.3s ease;
         }
 
         .pricing-card:hover {
             transform: translateY(-15px);
-            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.15);
+            box-shadow: var(--shadow-lg);
+            background-color: var(--card-hover);
         }
 
         .pricing-card h2 {
             font-size: 2.2em;
-            color: #2c3e50;
+            color: var(--text-primary);
             margin-bottom: 20px;
         }
 
         .price {
             font-size: 3em;
             font-weight: 800;
-            color: #a7f300;
+            color: var(--primary-color);
             margin-bottom: 20px;
         }
 
         .features {
             font-size: 1.2em;
-            color: #555;
+            color: var(--text-secondary);
             margin-bottom: 35px;
             letter-spacing: 0.5px;
         }
 
         /* ===== Call to Action Buttons ===== */
         .cta-button {
-            background: linear-gradient(90deg, #d0d0d0, #bfbfbf);
-            color: #fff;
-            border: none;
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 2px solid var(--border-color);
             padding: 15px 40px;
             border-radius: 30px;
             font-size: 1.1em;
@@ -114,12 +121,13 @@
             width: 100%;
             max-width: 220px;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            box-shadow: var(--shadow-sm);
         }
 
         .cta-button:hover {
             transform: scale(1.05);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+            box-shadow: var(--shadow-md);
+            border-color: var(--primary-color);
         }
 
         .cta-button:active {
@@ -127,16 +135,18 @@
         }
 
         .cta-button.primary {
-            background: linear-gradient(90deg, #a7f300, #76c500);
+            background: linear-gradient(90deg, var(--primary-color), var(--primary-hover));
+            color: var(--primary-text);
+            border: none;
         }
 
         .cta-button.primary:hover {
-            background: linear-gradient(90deg, #92d900, #5fb800);
+            background: linear-gradient(90deg, var(--primary-hover), #5fb800);
         }
 
         /* ===== Pro Card Styling ===== */
         .pro-card {
-            border: 2px solid #a7f300;
+            border: 2px solid var(--primary-color);
             box-shadow: 0 20px 50px rgba(167, 243, 0, 0.25);
             transform: scale(1.07);
             z-index: 1;
@@ -151,14 +161,14 @@
             position: absolute;
             top: -15px;
             right: -15px;
-            background: linear-gradient(135deg, #a7f300, #76c500);
-            color: #fff;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+            color: var(--primary-text);
             padding: 10px 20px;
             border-radius: 25px;
             font-size: 1em;
             font-weight: 700;
             transform: rotate(5deg);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            box-shadow: var(--shadow-md);
         }
 
         /* ===== Responsive ===== */

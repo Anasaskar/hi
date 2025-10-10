@@ -1,67 +1,51 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en" dir="ltr">
 
 <head>
     <link rel="icon" type="image/png" href="../../images/Logo.png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CloyAi - تسجيل الدخول</title>
+    <title>CloyAi - Login</title>
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;600;700&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="/theme.css">
     <link rel="stylesheet" href="/auth/login/login_page_style.css">
     <link rel="stylesheet" href="/auth/login/social-auth.css">
 </head>
 
 <body class="login-page-body">
-    <header class="main-header">
-        <div class="container">
-            <a href="/" class="logo">CloyAi</a>
-
-            <nav class="main-nav">
-                <ul class="nav-menu">
-                    <li><a href="/">الرئيسية</a></li>
-                    <li><a href="/pricing-page">الأسعار</a></li>
-                    <li><a href="/contact-page">تواصل معنا</a></li>
-                    <li class="mobile-login-item"><a href="/login" class="mobile-login-link">تسجيل الدخول</a></li>
-                </ul>
-            </nav>
-
-            <a href="/login" class="button primary header-login desktop-login">تسجيل الدخول</a>
-
-            <button class="nav-toggle" aria-label="Toggle navigation">
-                <span class="hamburger-icon">&#9776;</span>
-            </button>
-        </div>
-    </header>
+    <!-- Navbar will be injected by navbar-theme.js -->
     <div class="page-wrapper">
         <header class="simple-header">
-            <div class="logo">CloyAi</div>
+            <!-- <div class="logo">CloyAi</div> -->
         </header>
 
         <main class="login-main">
             <div class="login-card">
-                <h2>مرحبًا بعودتك 👋</h2>
-                <p class="subtitle">سجل الدخول لمتابعة استخدام CloyAi.</p>
+                <h2 data-i18n="login.title">مرحبًا بعودتك</h2>
+                <p class="subtitle" data-i18n="login.subtitle">سجل الدخول لمتابعة استخدام CloyAi.</p>
 
                 <form class="login-form">
                     <div class="form-group">
-                        <label for="email">البريد الإلكتروني</label>
-                        <input type="email" id="email" name="email" placeholder="your.email@example.com" required>
+                        <label for="email" data-i18n="login.email">البريد الإلكتروني</label>
+                        <input type="email" id="email" name="email" data-i18n="login.placeholder.email"
+                            data-i18n-attr="placeholder" placeholder="your.email@example.com" required>
                     </div>
                     <div class="form-group">
-                        <label for="password">كلمة المرور</label>
-                        <input type="password" id="password" name="password" placeholder="كلمة المرور" required>
+                        <label for="password" data-i18n="login.password">كلمة المرور</label>
+                        <input type="password" id="password" name="password" data-i18n="login.placeholder.password"
+                            data-i18n-attr="placeholder" placeholder="كلمة المرور" required>
                     </div>
                     <div class="form-group remember-me">
                         <input type="checkbox" id="rememberMe" name="rememberMe">
-                        <label for="rememberMe">تذكرني</label>
+                        <label for="rememberMe" data-i18n="login.remember">تذكرني</label>
                     </div>
-                    <button type="submit" class="login-button">تسجيل الدخول</button>
+                    <button type="submit" class="login-button" data-i18n="login.submit">تسجيل الدخول</button>
 
                     <div class="divider">
-                        <span>أو سجل الدخول باستخدام</span>
+                        <span data-i18n="login.orWith">أو سجل الدخول باستخدام</span>
                     </div>
 
                     <div class="social-login-buttons">
@@ -76,7 +60,7 @@
                                 <path fill="#EA4335"
                                     d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
                             </svg>
-                            Google
+                            <span data-i18n="login.google">Google</span>
                         </a>
                         <!-- <a href="/api/auth/facebook" class="social-btn facebook-btn">
                             <i class="fab fa-facebook-f"></i>
@@ -88,54 +72,62 @@
                         </a>
                         <a href="/api/auth/vk" class="social-btn vk-btn">
                             <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
-                                <path d="M15.07 2H8.93C3.33 2 2 3.33 2 8.93v6.14C2 20.67 3.33 22 8.93 22h6.14c5.6 0 6.93-1.33 6.93-6.93V8.93C22 3.33 20.67 2 15.07 2zm3.39 14.66h-1.4c-.65 0-.85-.52-2.01-1.7-1.01-1.01-1.46-1.14-1.72-1.14-.35 0-.45.1-.45.58v1.55c0 .42-.14.67-1.23.67-1.81 0-3.82-1.09-5.24-3.13-2.11-2.99-2.69-5.19-2.69-5.65 0-.26.1-.5.58-.5h1.4c.43 0 .6.2.76.66.85 2.42 2.26 4.53 2.85 4.53.22 0 .32-.1.32-.65v-2.52c-.07-1.14-.67-1.24-.67-1.65 0-.21.17-.42.45-.42h2.2c.37 0 .5.2.5.63v3.42c0 .37.17.5.27.5.22 0 .4-.13.82-.54 1.27-1.42 2.18-3.61 2.18-3.61.12-.26.32-.5.76-.5h1.4c.47 0 .57.24.47.57-.16.81-1.88 3.59-1.88 3.59-.18.3-.25.44 0 .77.18.25.79.77 1.20 1.24.74.84 1.31 1.54 1.46 2.03.16.49-.09.74-.56.74z"/>
+                                <path d="M15.07 2H8.93C3.33 2 2 3.33 2 8.93v6.14C2 20.67 3.33 22 8.93 22h6.14c5.6 0 6.93-1.33 6.93-6.93V8.93C22 3.33 20.67 2 15.07 2zm3.39 14.66h-1.4c-.65 0-.85-.52-2.01-1.7-1.01-1.01-1.46-1.14-1.72-1.14-.35 0-.45.1-.45.58v1.55c0 .42-.14.67-2.42 2.26 4.53 2.85 4.53.22 0 .32-.1.32-.65v-2.52c-.07-1.14-.67-1.24-.67-1.65 0-.21.17-.42.45-.42h2.2c.37 0 .5.2.5.63v3.42c0 .37.17.5.27.5.22 0 .4-.13.82-.54 1.27-1.42 2.18-3.61 2.18-3.61.12-.26.32-.5.76-.5h1.4c.47 0 .57.24.47.57-.16.81-1.88 3.59-1.88 3.59-.18.3-.25.44 0 .77.18.25.79.77 1.20 1.24.74.84 1.31 1.54 1.46 2.03.16.49-.09.74-.56.74z"/>
                             </svg>
                             VK
                         </a> -->
                     </div>
 
-                    <a href="/register" class="register-link">ليس لديك حساب؟ أنشئ حسابك الآن</a>
+                    <a href="/register" class="register-link" data-i18n="login.noAccount">ليس لديك حساب؟ أنشئ حسابك
+                        الآن</a>
                 </form>
             </div>
 
             <div class="toast-notification success hidden" id="loginSuccessToast">
                 <i class="fas fa-check-circle"></i>
-                <span>تم تسجيل الدخول بنجاح!</span>
+                <span data-i18n="login.toastSuccess">تم تسجيل الدخول بنجاح!</span>
             </div>
             <div class="toast-notification error hidden" id="loginErrorToast">
                 <i class="fas fa-exclamation-circle"></i>
-                <span>فشل تسجيل الدخول. يرجى التحقق من بياناتك.</span>
+                <span data-i18n="login.toastError">فشل تسجيل الدخول. يرجى التحقق من بياناتك.</span>
             </div>
         </main>
+        <header class="simple-header">
+            <!-- <div class="logo">CloyAi</div> -->
+        </header>
 
-        <footer class="simple-footer">
-            <div class="footer-links">
-                <a href="#">الأسعار</a>
-                <a href="#">الخصوصية</a>
-                <a href="#">الشروط</a>
-            </div>
-            <p>&copy; 2025 CloyAi. جميع الحقوق محفوظة.</p>
-            <div class="social-icons">
-                <a href="#" target="_blank" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
-                <a href="#" target="_blank" aria-label="Behance"><i class="fab fa-behance"></i></a>
-                <a href="#" target="_blank" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
-            </div>
-        </footer>
     </div>
+
+    <footer class="main-footer">
+        <div class="container">
+            <div class="footer-section footer-about">
+                <h3 data-i18n="footer.about.title">CloyAi</h3>
+                <p data-i18n="footer.about.text">حلول تصوير المنتجات بالذكاء الاصطناعي لعلامتك التجارية.</p>
+            </div>
+            <div class="footer-section footer-links">
+                <h3 data-i18n="footer.links.title">روابط سريعة</h3>
+                <ul>
+                    <li><a href="/" data-i18n="footer.links.home">الرئيسية</a></li>
+                    <li><a href="/pricing-page" data-i18n="footer.links.pricing">الأسعار</a></li>
+                    <li><a href="/contact-page" data-i18n="footer.links.contact">تواصل معنا</a></li>
+                </ul>
+            </div>
+            <div class="footer-section footer-social">
+                <h3 data-i18n="footer.social.title">تابعنا</h3>
+                <div class="social-icons">
+                    <a href="#" target="_blank" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+
+                    <a href="#" target="_blank" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p data-i18n="footer.bottom.copyright">&copy; 2025 CloyAi. جميع الحقوق محفوظة.</p>
+        </div>
+    </footer>
+
     <script src="/auth/login/login.js"></script>
-
-    <script>
-        // Nav toggle (same behavior as on index.html)
-        const navToggle = document.querySelector('.nav-toggle');
-        const mainNav = document.querySelector('.main-nav');
-
-        if (navToggle && mainNav) {
-            navToggle.addEventListener('click', () => {
-                mainNav.classList.toggle('active');
-            });
-        }
-    </script>
-    <script src="/auth-state.js"></script>
+    <script src="/navbar-theme.js"></script>
 </body>
 
 </html>

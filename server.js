@@ -21,6 +21,8 @@ const { Configuration, OpenAIApi } = require('openai');
 const passport = require('./config/passport');
 const authRoutes = require('./routes/authRoutes');
 
+const { ensureAuth, requirePaid, verifyToken } = require('./middleware/auth');
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -33,9 +35,9 @@ app.use(cors({
 	credentials: true
 }));
 
-// Session middleware for passport (required for OAuth)
+// Session configuration for Passport
 app.use(session({
-	secret: process.env.SESSION_SECRET || 'your-session-secret-change-in-production',
+	secret: process.env.SESSION_SECRET || 'your-session-secret-key',
 	resave: false,
 	saveUninitialized: false,
 	cookie: { 
@@ -48,6 +50,8 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
+// i18n removed: site is English-only now
+
 // الاتصال بقاعدة البيانات
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/virtufit';
 mongoose.connect(MONGO_URI)
@@ -57,48 +61,8 @@ mongoose.connect(MONGO_URI)
 // Multer configuration for file uploads
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 5 * 1024 * 1024 } }); // 5MB limit
 
-// ========= MIDDLEWARE DEFINITIONS - MUST COME BEFORE ROUTES =========
-
-// Middleware to verify JWT token
-const verifyToken = async (req, res, next) => {
-	try {
-		const token = req.cookies.token;
-		if (!token) {
-			return res.status(401).json({ message: 'No token provided' });
-		}
-		const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret');
-		const user = await User.findById(decoded.id);
-		if (!user) {
-			return res.status(401).json({ message: 'User not found' });
-		}
-		// Block banned users immediately
-		if (user.type === 'Baned') {
-			res.clearCookie('token');
-			return res.status(403).send('Account banned. Contact support.');
-		}
-
-		// Block users who haven't confirmed email
-		if (!user.emailConfirmed) {
-			res.clearCookie('token');
-			return res.redirect(`/auth/confirm/confirm_page.html?email=${encodeURIComponent(user.email)}`);
-		}
-
-		req.user = user;
-		next();
-	} catch (err) {
-		return res.status(401).json({ message: 'Invalid token' });
-	}
-};
-
-// Middleware to ensure user has paid access
-const requirePaid = (req, res, next) => {
-	if (!req.user) return res.status(401).json({ message: 'Not authenticated' });
-
-	if (req.user.type !== 'pay') {
-		return res.status(403).json({ message: 'This feature requires a paid subscription' });
-	}
-	next();
-};
+// ========= MIDDLEWARE DEFINITIONS - NOW IN middleware/auth.js =========
+// Middleware functions are imported from ./middleware/auth.js
 
 // ========= FITROOM API CONFIGURATION =========
 
@@ -346,7 +310,15 @@ app.get('/pricing-page', (req, res) => {
 });
 
 app.get('/contact-page', (req, res) => {
-	res.sendFile(path.join(__dirname, 'contact-page', 'contact_page.html'));
+    res.sendFile(path.join(__dirname, 'contact-page', 'contact_page.html'));
+});
+
+app.get('/gallery', ensureAuth, async (req, res) => {
+    // Only paid users should access their gallery
+    if (req.user.type !== 'pay') {
+        return res.redirect('/pricing-page');
+    }
+    res.sendFile(path.join(__dirname, 'gallery-page', 'gallery_page.html'));
 });
 
 app.get('/login', async (req, res) => {
@@ -356,7 +328,7 @@ app.get('/login', async (req, res) => {
 			const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret');
 			const user = await User.findById(decoded.id);
 			if (user) {
-				return res.redirect('/');
+				return res.redirect('/dashboard');
 			}
 		}
 	} catch (err) {
@@ -381,215 +353,203 @@ app.get(['/register', '/signup'], async (req, res) => {
 	res.sendFile(path.join(__dirname, 'auth', 'signup', 'register_page.html'));
 });
 
-// Protected route for dashboard
-app.get('/dashboard', async (req, res, next) => {
-	try {
-		const token = req.cookies.token;
-		if (!token) {
-			return res.redirect('/login');
-		}
-		const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret');
-		const user = await User.findById(decoded.id);
-		if (!user) {
-			return res.redirect('/login');
-		}
-		if (user.type === 'Baned') {
-			res.clearCookie('token');
-			return res.status(403).send('Account banned. Contact support.');
-		}
-		if (!user.emailConfirmed) {
-			res.clearCookie('token');
-			return res.redirect(`/auth/confirm/confirm_page.html?email=${encodeURIComponent(user.email)}`);
-		}
-		if (user.type !== 'pay') {
-			return res.redirect('/pricing-page');
-		}
-		res.sendFile(path.join(__dirname, 'dashboard-page', 'dashboard_page.html'));
-	} catch (err) {
-		res.redirect('/login');
-	}
+// Protected route for dashboard (requires paid subscription)
+app.get('/dashboard', ensureAuth, async (req, res) => {
+    // Check if user has paid subscription
+    if (req.user.type !== 'pay') {
+        return res.redirect('/pricing-page');
+    }
+    res.sendFile(path.join(__dirname, 'dashboard-page', 'dashboard_page.html'));
 });
 
-// ========= API ROUTES =========
+// ========= LOGOUT ROUTE =========
+app.get('/logout', (req, res) => {
+    res.clearCookie('token');
+    if (typeof req.logout === 'function') {
+        req.logout(function (err) {
+            if (err) {
+                console.error('Logout error:', err);
+            }
+            return res.redirect('/');
+        });
+    } else {
+        return res.redirect('/');
+    }
+});
 
-// Main endpoint for processing try-on requests
-app.post('/api/process-tryon', verifyToken, requirePaid, upload.single('cloth'), async (req, res) => {
-	try {
-		const { modelId, hdMode = false } = req.body;
+// ========= VIRTUAL TRY-ON API =========
+// Accepts either:
+// - modelId + clothImage
+// - modelImage (file) + clothImage
+app.post('/api/tryon/process', verifyToken, requirePaid, upload.fields([
+    { name: 'clothImage', maxCount: 1 },
+    { name: 'modelImage', maxCount: 1 }
+]), async (req, res) => {
+    try {
+        const { modelId, hdMode = false } = req.body;
+        const clothFile = req.files?.clothImage?.[0];
+        const customModelFile = req.files?.modelImage?.[0];
 
-		if (!modelId) {
-			return res.status(400).json({
-				ok: false,
-				message: 'Missing modelId'
-			});
-		}
+        // Validate required inputs
+        if (!clothFile) {
+            return res.status(400).json({ ok: false, message: 'No cloth image uploaded' });
+        }
+        if (!customModelFile && !modelId) {
+            return res.status(400).json({ ok: false, message: 'Provide either modelImage or modelId' });
+        }
 
-		if (!req.file) {
-			return res.status(400).json({
-				ok: false,
-				message: 'No cloth image uploaded'
-			});
-		}
+        let modelImageBuffer;
+        if (customModelFile) {
+            // Use uploaded model image
+            modelImageBuffer = customModelFile.buffer;
+        } else {
+            // Use predefined model by ID
+            const modelsDir = path.join(__dirname, 'modelsImages');
+            const files = fs.readdirSync(modelsDir).filter(f => /\.(jpe?g|png)$/i.test(f));
+            const index = parseInt(String(modelId).replace(/[^0-9]/g, ''), 10) - 1;
+            const modelFile = files[index];
+            if (!modelFile) {
+                return res.status(400).json({ ok: false, message: 'Model not found' });
+            }
+            const modelImagePath = path.join(modelsDir, modelFile);
+            modelImageBuffer = fs.readFileSync(modelImagePath);
+        }
 
-		// Get model image from local directory
-		const modelsDir = path.join(__dirname, 'modelsImages');
-		const files = fs.readdirSync(modelsDir).filter(f => /\.(jpe?g|png)$/i.test(f));
-		const index = parseInt(modelId.replace(/[^0-9]/g, ''), 10) - 1;
-		const modelFile = files[index];
+        const clothBuffer = clothFile.buffer;
 
-		if (!modelFile) {
-			return res.status(400).json({
-				ok: false,
-				message: 'Model not found'
-			});
-		}
+        // Validate images
+        const modelCheck = await checkModelImage(modelImageBuffer);
+        if (!modelCheck.is_good) {
+            return res.status(400).json({ ok: false, message: 'Model image validation failed', errorCode: modelCheck.error_code });
+        }
 
-		const modelImagePath = path.join(modelsDir, modelFile);
-		const modelImageBuffer = fs.readFileSync(modelImagePath);
-		const clothBuffer = req.file.buffer;
+        const clothesCheck = await checkClothesImage(clothBuffer);
+        if (!clothesCheck.is_clothes) {
+            return res.status(400).json({ ok: false, message: 'Invalid clothing image', clothType: clothesCheck.clothes_type });
+        }
 
-		// Step 1: Validate images (optional but recommended)
-		console.log('Validating model image...');
-		const modelCheck = await checkModelImage(modelImageBuffer);
-		if (!modelCheck.is_good) {
-			return res.status(400).json({
-				ok: false,
-				message: 'Model image validation failed',
-				errorCode: modelCheck.error_code
-			});
-		}
+        // Create try-on task
+        const taskResponse = await createTryOnTask(
+            modelImageBuffer,
+            clothBuffer,
+            clothesCheck.clothes_type || 'upper',
+            hdMode === 'true' || hdMode === true
+        );
 
-		console.log('Validating clothes image...');
-		const clothesCheck = await checkClothesImage(clothBuffer);
-		if (!clothesCheck.is_clothes) {
-			return res.status(400).json({
-				ok: false,
-				message: 'Invalid clothing image',
-				clothType: clothesCheck.clothes_type
-			});
-		}
+        if (!taskResponse.task_id) {
+            throw new Error('No task ID received from FitRoom API');
+        }
 
-		// Step 2: Create try-on task
-		console.log('Creating try-on task...');
-		const taskResponse = await createTryOnTask(
-			modelImageBuffer,
-			clothBuffer,
-			clothesCheck.clothes_type || 'upper',
-			hdMode === 'true' || hdMode === true
-		);
+        const taskId = taskResponse.task_id;
+        const result = await pollTaskUntilComplete(taskId);
 
-		if (!taskResponse.task_id) {
-			throw new Error('No task ID received from FitRoom API');
-		}
+        if (!result.success) {
+            return res.status(500).json({ ok: false, message: result.error || 'Try-on processing failed' });
+        }
 
-		const taskId = taskResponse.task_id;
-		console.log(`Task created with ID: ${taskId}`);
+        // Save order to user's history
+        const user = await User.findById(req.user._id);
+        const order = {
+            tshirtImage: `data:image/jpeg;base64,${clothBuffer.toString('base64')}`,
+            processedImage: result.imageUrl,
+            modelId: modelId,
+            status: 'Done',
+            createdAt: new Date()
+        };
+        user.orders.push(order);
+        await user.save();
 
-		// Step 3: Poll for results
-		console.log('Polling for results...');
-		const result = await pollTaskUntilComplete(taskId);
-
-		if (!result.success) {
-			return res.status(500).json({
-				ok: false,
-				message: result.error || 'Try-on processing failed'
-			});
-		}
-
-		// Step 4: Save order to user's history
-		const user = await User.findById(req.user._id);
-		const order = {
-			tshirtImage: `data:image/jpeg;base64,${clothBuffer.toString('base64')}`,
-			processedImage: result.imageUrl,
-			modelId: modelId,
-			status: 'Done',
-			createdAt: new Date()
-		};
-
-		user.orders.push(order);
-		await user.save();
-
-		// Return success with processed image URL
-		res.json({
-			ok: true,
-			processedImageUrl: result.imageUrl,
-			imageUrl: result.imageUrl,
-			taskId: taskId,
-			message: 'Try-on processed successfully'
-		});
-
-	} catch (error) {
-		console.error('Process try-on error:', error);
-		res.status(500).json({
-			ok: false,
-			message: 'Processing failed',
-			error: error.message
-		});
-	}
+        res.json({ ok: true, processedImageUrl: result.imageUrl, imageUrl: result.imageUrl, taskId });
+    } catch (error) {
+        console.error('Process try-on error:', error);
+        res.status(500).json({ ok: false, message: 'Processing failed', error: error.message });
+    }
 });
 
 // Endpoint to check task status (for manual checking)
 app.get('/api/tryon/status/:taskId', verifyToken, requirePaid, async (req, res) => {
-	try {
-		const { taskId } = req.params;
-		const status = await getTaskStatus(taskId);
-		res.json(status);
-	} catch (error) {
-		console.error('Status check error:', error);
-		res.status(500).json({
-			ok: false,
-			message: 'Failed to check status',
-			error: error.message,
-			stack: error.stack
-		});
-	}
+    try {
+        const { taskId } = req.params;
+        const status = await getTaskStatus(taskId);
+        res.json(status);
+    } catch (error) {
+        console.error('Status check error:', error);
+        res.status(500).json({ ok: false, message: 'Failed to check status', error: error.message });
+    }
 });
 
 app.get('/api/user/info', verifyToken, (req, res) => {
-	res.json({
-		fullName: req.user.fullName,
-		email: req.user.email,
-		type: req.user.type
-	});
+    res.json({ fullName: req.user.fullName, email: req.user.email, type: req.user.type });
 });
 
 app.get('/api/models', verifyToken, requirePaid, async (req, res) => {
-	try {
-		const readdir = promisify(fs.readdir);
-		const modelsPath = path.join(__dirname, 'modelsImages');
+    try {
+        const readdir = promisify(fs.readdir);
+        const modelsPath = path.join(__dirname, 'modelsImages');
+        if (!fs.existsSync(modelsPath)) fs.mkdirSync(modelsPath);
 
-		if (!fs.existsSync(modelsPath)) {
-			fs.mkdirSync(modelsPath);
-		}
-
-		const files = await readdir(modelsPath);
-		const modelImages = files.filter(file =>
-			file.toLowerCase().endsWith('.jpg') ||
-			file.toLowerCase().endsWith('.jpeg') ||
-			file.toLowerCase().endsWith('.png')
-		);
-
-		const models = modelImages.map((file, index) => ({
-			id: `model${index + 1}`,
-			name: `موديل ${index + 1}`,
-			image: `/modelsImages/${file}`
-		}));
-
-		res.json(models);
-	} catch (error) {
-		console.error('Error reading models directory:', error);
-		res.status(500).json({ message: 'Error loading models' });
-	}
+        const files = await readdir(modelsPath);
+        const modelImages = files.filter(file => file.toLowerCase().endsWith('.jpg') || file.toLowerCase().endsWith('.jpeg') || file.toLowerCase().endsWith('.png'));
+        const models = modelImages.map((file, index) => ({ id: `model${index + 1}`, name: `Model ${index + 1}`, image: `/modelsImages/${file}` }));
+        res.json(models);
+    } catch (error) {
+        console.error('Error reading models directory:', error);
+        res.status(500).json({ message: 'Error loading models' });
+    }
 });
 
 app.get('/api/orders', verifyToken, requirePaid, async (req, res) => {
-	try {
-		const user = await User.findById(req.user._id).select('orders');
-		res.json({ ok: true, orders: user.orders || [] });
-	} catch (err) {
-		console.error('Failed to fetch orders', err);
-		res.status(500).json({ ok: false, message: 'Failed to fetch orders' });
-	}
+    try {
+        const user = await User.findById(req.user._id).select('orders');
+        res.json({ ok: true, orders: user.orders || [] });
+    } catch (err) {
+        console.error('Failed to fetch orders', err);
+        res.status(500).json({ ok: false, message: 'Failed to fetch orders' });
+    }
+});
+
+// ========= DOWNLOAD PROXY (to avoid CORS and force Content-Disposition) =========
+app.get('/api/download', verifyToken, requirePaid, async (req, res) => {
+    try {
+        const { url, filename = 'image.jpg' } = req.query;
+        if (!url) return res.status(400).json({ ok: false, message: 'Missing url' });
+
+        // Basic SSRF protection
+        let parsed;
+        try {
+            parsed = new URL(url);
+        } catch (e) {
+            return res.status(400).json({ ok: false, message: 'Invalid URL' });
+        }
+        const blockedHosts = ['localhost', '127.0.0.1'];
+        if (!['http:', 'https:'].includes(parsed.protocol)) {
+            return res.status(400).json({ ok: false, message: 'Unsupported protocol' });
+        }
+        if (blockedHosts.includes(parsed.hostname) || parsed.hostname.endsWith('.local')) {
+            return res.status(400).json({ ok: false, message: 'Blocked host' });
+        }
+
+        const upstream = await fetch(url);
+        if (!upstream.ok) {
+            const text = await upstream.text().catch(() => '');
+            return res.status(502).json({ ok: false, message: 'Failed to fetch file', status: upstream.status, body: text });
+        }
+
+        const contentType = upstream.headers.get('content-type') || 'application/octet-stream';
+        res.setHeader('Content-Type', contentType);
+        res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+        // Support both Node streams and Web ReadableStreams
+        const body = upstream.body;
+        if (body && typeof body.pipe === 'function') {
+            body.pipe(res);
+        } else {
+            const arrayBuf = await upstream.arrayBuffer();
+            res.end(Buffer.from(arrayBuf));
+        }
+    } catch (err) {
+        console.error('Download proxy error:', err);
+        res.status(500).json({ ok: false, message: 'Download failed' });
+    }
 });
 
 // ========= 404 HANDLER =========

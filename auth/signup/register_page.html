@@ -1,74 +1,62 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en" dir="ltr">
 
 <head>
     <link rel="icon" type="image/png" href="../../images/Logo.png">
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CloyAi - إنشاء حساب</title>
+    <title>CloyAi - Register</title>
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;600;700&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link rel="stylesheet" href="/auth/signup/register_page_style.css">
     <link rel="stylesheet" href="../../style.css">
+    <link rel="stylesheet" href="../../theme.css">
+    <link rel="stylesheet" href="/auth/signup/register_page_style.css">
     <link rel="stylesheet" href="/auth/login/social-auth.css">
 </head>
 
 <body>
-    <header class="main-header">
-        <div class="container">
-            <a href="/" class="logo">CloyAi</a>
-
-            <nav class="main-nav">
-                <ul class="nav-menu">
-                    <li><a href="/">الرئيسية</a></li>
-                    <li><a href="/pricing-page">الأسعار</a></li>
-                    <li><a href="/contact-page">تواصل معنا</a></li>
-                    <li class="mobile-login-item"><a href="/login" class="mobile-login-link">تسجيل الدخول</a></li>
-                </ul>
-            </nav>
-
-            <a href="/login" class="button primary header-login desktop-login">تسجيل الدخول</a>
-
-            <button class="nav-toggle" aria-label="Toggle navigation">
-                <span class="hamburger-icon">&#9776;</span>
-            </button>
-        </div>
-    </header>
+    <!-- Navbar will be injected by navbar-theme.js -->
     <div class="page-wrapper">
         <header class="simple-header">
-            <div class="logo">CloyAi</div>
+            <!-- <div class="logo">CloyAi</div> -->
         </header>
+
 
         <main class="register-main">
             <div class="register-card">
-                <h2>أنشئ حسابك ✨</h2>
-                <p class="subtitle">انضم إلى CloyAi وابدأ في إنشاء صور احترافية لمنتجاتك.</p>
+                <h2 data-i18n="register.title">أنشئ حسابك ✨</h2>
+                <p class="subtitle" data-i18n="register.subtitle">انضم إلى CloyAi وابدأ في إنشاء صور احترافية لمنتجاتك.
+                </p>
 
                 <form class="register-form" id="registerForm">
                     <div class="form-group">
-                        <label for="fullName">الاسم الكامل</label>
-                        <input type="text" id="fullName" name="fullName" placeholder="الاسم الكامل" required>
+                        <label for="fullName" data-i18n="register.fullName">الاسم الكامل</label>
+                        <input type="text" id="fullName" name="fullName" data-i18n="register.placeholder.fullName"
+                            data-i18n-attr="placeholder" placeholder="الاسم الكامل" required>
                     </div>
                     <div class="form-group">
-                        <label for="email">البريد الإلكتروني</label>
-                        <input type="email" id="email" name="email" placeholder="your.email@example.com" required>
+                        <label for="email" data-i18n="register.email">البريد الإلكتروني</label>
+                        <input type="email" id="email" name="email" data-i18n="register.placeholder.email"
+                            data-i18n-attr="placeholder" placeholder="your.email@example.com" required>
                     </div>
                     <div class="form-group">
-                        <label for="password">كلمة المرور</label>
-                        <input type="password" id="password" name="password" placeholder="كلمة المرور" required>
+                        <label for="password" data-i18n="register.password">كلمة المرور</label>
+                        <input type="password" id="password" name="password" data-i18n="register.placeholder.password"
+                            data-i18n-attr="placeholder" placeholder="كلمة المرور" required>
                     </div>
                     <div class="form-group">
-                        <label for="confirmPassword">تأكيد كلمة المرور</label>
+                        <label for="confirmPassword" data-i18n="register.confirmPassword">تأكيد كلمة المرور</label>
                         <input type="password" id="confirmPassword" name="confirmPassword"
+                            data-i18n="register.placeholder.confirmPassword" data-i18n-attr="placeholder"
                             placeholder="تأكيد كلمة المرور" required>
                         <p class="password-match-feedback" id="passwordMatchFeedback"></p>
                     </div>
-                    <button type="submit" class="register-button">تسجيل</button>
+                    <button type="submit" class="register-button" data-i18n="register.submit">تسجيل</button>
 
                     <div class="divider">
-                        <span>أو سجل حساب جديد باستخدام</span>
+                        <span data-i18n="register.orWith">أو سجل حساب جديد باستخدام</span>
                     </div>
 
                     <div class="social-login-buttons">
@@ -101,56 +89,61 @@
                         </a> -->
                     </div>
 
-                    <a href="login" class="login-link">لديك حساب بالفعل؟ سجل الدخول</a>
+                    <a href="login" class="login-link" data-i18n="register.haveAccount">لديك حساب بالفعل؟ سجل الدخول</a>
                 </form>
             </div>
 
             <div class="toast-notification success hidden" id="registerSuccessToast">
                 <i class="fas fa-check-circle"></i>
-                <span>تم إنشاء الحساب بنجاح!</span>
+                <span data-i18n="register.toastSuccess">تم إنشاء الحساب بنجاح!</span>
             </div>
             <div class="toast-notification error hidden" id="registerErrorToast">
                 <i class="fas fa-exclamation-circle"></i>
-                <span>فشل إنشاء الحساب. يرجى التحقق من البيانات.</span>
-            </div>
-            <div class="toast-notification error hidden" id="passwordMismatchToast">
-                <i class="fas fa-exclamation-circle"></i>
-                <span>كلمتا المرور غير متطابقتين!</span>
-            </div>
+                <span data-i18n="register.toastError">فشل إنشاء الحساب. يرجى التحقق من البيانات.</span>
+                <div class="toast-notification error hidden" id="passwordMismatchToast">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span data-i18n="register.toastMismatch">كلمتا المرور غير متطابقتين!</span>
+                </div>
         </main>
+        <header class="simple-header">
+            <!-- <div class="logo">CloyAi</div> -->
+        </header>
 
-
-        <footer class="simple-footer">
-            <div class="footer-links">
-                <a href="#">الأسعار</a>
-                <a href="#">الخصوصية</a>
-                <a href="#">الشروط</a>
-            </div>
-            <p>&copy; 2025 CloyAi. جميع الحقوق محفوظة.</p>
-            <div class="social-icons">
-                <a href="#" target="_blank" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
-                <a href="#" target="_blank" aria-label="Behance"><i class="fab fa-behance"></i></a>
-                <a href="#" target="_blank" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
-            </div>
-        </footer>
     </div>
+
+    <footer class="main-footer">
+        <div class="container">
+            <div class="footer-section footer-about">
+                <h3 data-i18n="footer.about.title">CloyAi</h3>
+                <p data-i18n="footer.about.text">حلول تصوير المنتجات بالذكاء الاصطناعي لعلامتك التجارية.</p>
+            </div>
+            <div class="footer-section footer-links">
+                <h3 data-i18n="footer.links.title">روابط سريعة</h3>
+                <ul>
+                    <li><a href="/" data-i18n="footer.links.home">الرئيسية</a></li>
+                    <li><a href="/pricing-page" data-i18n="footer.links.pricing">الأسعار</a></li>
+                    <li><a href="/contact-page" data-i18n="footer.links.contact">تواصل معنا</a></li>
+                </ul>
+            </div>
+            <div class="footer-section footer-social">
+                <h3 data-i18n="footer.social.title">تابعنا</h3>
+                <div class="social-icons">
+                    <a href="#" target="_blank" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+
+                    <a href="#" target="_blank" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p data-i18n="footer.bottom.copyright">&copy; 2025 CloyAi. جميع الحقوق محفوظة.</p>
+        </div>
+    </footer>
+
     <script src="/auth/signup/register.js"></script>
-
     <script>
-        // Nav toggle (same behavior as on index.html)
-        const navToggle = document.querySelector('.nav-toggle');
-        const mainNav = document.querySelector('.main-nav');
-
-        if (navToggle && mainNav) {
-            navToggle.addEventListener('click', () => {
-                mainNav.classList.toggle('active');
-            });
-        }
-
         const registerForm = document.getElementById('registerForm');
         const passwordInput = document.getElementById('password');
         const confirmPasswordInput = document.getElementById('confirmPassword');
-        const passwordMatchFeedback = document.getElementById('passwordMatchFeedback');
 
         const successToast = document.getElementById('registerSuccessToast');
         const errorToast = document.getElementById('registerErrorToast');
@@ -158,11 +151,11 @@
 
         function validatePasswords() {
             if (passwordInput.value === confirmPasswordInput.value) {
-                passwordMatchFeedback.textContent = 'كلمتا المرور متطابقتان.';
+                passwordMatchFeedback.textContent = t('register.matchOk');
                 passwordMatchFeedback.style.color = '#28a745'; // Green for match
                 return true;
             } else {
-                passwordMatchFeedback.textContent = 'كلمتا المرور غير متطابقتين!';
+                passwordMatchFeedback.textContent = t('register.toastMismatch');
                 passwordMatchFeedback.style.color = '#dc3545'; // Red for mismatch
                 return false;
             }
@@ -210,6 +203,7 @@
             }, 3000); // Hide after 3 seconds
         }
     </script>
+    <script src="/navbar-theme.js"></script>
 </body>
 
 </html>

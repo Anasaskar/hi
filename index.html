@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en" dir="ltr">
 
 <head>
     <link rel="icon" type="image/png" href="images/Logo.png">
@@ -7,39 +7,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CloyAi - Home</title>
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;600;700&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="theme.css">
 </head>
 
 <body>
-    <header class="main-header">
-        <div class="container">
-            <a href="/" class="logo">CloyAi</a>
-
-            <nav class="main-nav">
-                <ul class="nav-menu">
-                    <li><a href="/">الرئيسية</a></li>
-                    <li><a href="/pricing-page">الأسعار</a></li>
-                    <li><a href="/contact-page">تواصل معنا</a></li>
-                    <li class="mobile-login-item"><a href="/login" class="mobile-login-link">تسجيل الدخول</a></li>
-                </ul>
-            </nav>
-
-            <a href="/login" class="button primary header-login desktop-login">تسجيل الدخول</a>
-
-            <button class="nav-toggle" aria-label="Toggle navigation">
-                <span class="hamburger-icon">&#9776;</span>
-            </button>
-        </div>
-    </header>
+    <!-- Navbar will be injected by navbar-theme.js -->
 
     <main>
         <section class="hero-section">
             <div class="container">
                 <div class="hero-content">
-                    <h1>حول منتجاتك لجلسة تصوير احترافية بدون كاميرا.</h1>
-                    <p>أطلق العنان لقوة الذكاء الاصطناعي لإنشاء صور مذهلة لمنتجاتك بأقل تكلفة وفي وقت قياسي.</p>
+                    <h1 data-i18n="hero.title">حول منتجاتك لجلسة تصوير احترافية بدون كاميرا.</h1>
+                    <p data-i18n="hero.subtitle">أطلق العنان لقوة الذكاء الاصطناعي لإنشاء صور مذهلة لمنتجاتك بأقل تكلفة
+                        وفي وقت قياسي.</p>
                     <!-- <div class="cta-buttons">
                         <a href="/dashboard" class="button primary dashboard-link">ابدأ التجربة</a>
                         <a href="/dashboard" class="button secondary dashboard-link">شاهد النماذج</a>
@@ -54,28 +38,30 @@
 
         <section class="features-section">
             <div class="container">
-                <h2>لماذا CloyAi؟</h2>
+                <h2 data-i18n="features.title">لماذا CloyAi؟</h2>
                 <div class="feature-cards">
                     <div class="feature-card">
                         <i class="fas fa-magic icon-lemon-green"></i>
-                        <h3>تركيب ذكي للملابس على الموديل</h3>
-                        <p>تقنية AI متقدمة تدمج منتجاتك بشكل واقعي على موديلات افتراضية، مما يوفر تجربة عرض فريدة.</p>
+                        <h3 data-i18n="features.item1.title">تركيب ذكي للملابس على الموديل</h3>
+                        <p data-i18n="features.item1.desc">تقنية AI متقدمة تدمج منتجاتك بشكل واقعي على موديلات افتراضية،
+                            مما يوفر تجربة عرض فريدة.</p>
                     </div>
                     <div class="feature-card">
                         <i class="fas fa-clock icon-lemon-green"></i>
-                        <h3>جاهز خلال دقائق</h3>
-                        <p>وداعاً لانتظار جلسات التصوير الطويلة. صورك الاحترافية ستكون جاهزة في غضون دقائق معدودة.</p>
+                        <h3 data-i18n="features.item2.title">جاهز خلال دقائق</h3>
+                        <p data-i18n="features.item2.desc">وداعاً لانتظار جلسات التصوير الطويلة. صورك الاحترافية ستكون
+                            جاهزة في غضون دقائق معدودة.</p>
                     </div>
                     <div class="feature-card">
                         <i class="fas fa-tag icon-lemon-green"></i>
-                        <h3>أرخص من التصوير الفعلي بـ 90%</h3>
-                        <p>وفر في تكاليف التصوير الباهظة مع الحصول على نتائج احترافية فائقة الجودة وبجزء بسيط من
-                            التكلفة.</p>
+                        <h3 data-i18n="features.item3.title">أرخص من التصوير الفعلي بـ 90%</h3>
+                        <p data-i18n="features.item3.desc">وفر في تكاليف التصوير الباهظة مع الحصول على نتائج احترافية
+                            فائقة الجودة وبجزء بسيط من التكلفة.</p>
                     </div>
                 </div>
             </div>
         </section>
-
+        <!-- 
         <section class="testimonials-section">
             <div class="container">
                 <h2>ماذا يقول عملاؤنا؟</h2>
@@ -89,72 +75,39 @@
                         <h4>- سارة، مصممة أزياء</h4>
                     </div>
                 </div>
-                <!-- <p class="note"><span>(المزيد من التقييمات قريباً في شكل شريط تمرير)</span></p> -->
+                <p class="note"><span>(المزيد من التقييمات قريباً في شكل شريط تمرير)</span></p>
             </div>
-        </section>
+        </section> -->
     </main>
     <footer class="main-footer">
         <div class="container">
             <div class="footer-section footer-about">
-                <h3>CloyAi</h3>
-                <p>حلول تصوير المنتجات بالذكاء الاصطناعي لعلامتك التجارية.</p>
+                <h3 data-i18n="footer.about.title">CloyAi</h3>
+                <p data-i18n="footer.about.text">حلول تصوير المنتجات بالذكاء الاصطناعي لعلامتك التجارية.</p>
             </div>
             <div class="footer-section footer-links">
-                <h3>روابط سريعة</h3>
+                <h3 data-i18n="footer.links.title">روابط سريعة</h3>
                 <ul>
-                    <li><a href="#">الرئيسية</a></li>
-                    <li><a href="#">الأسعار</a></li>
-                    <li><a href="#">تواصل معنا</a></li>
+                    <li><a href="#" data-i18n="footer.links.home">الرئيسية</a></li>
+                    <li><a href="/pricing-page" data-i18n="footer.links.pricing">الأسعار</a></li>
+                    <li><a href="/contact-page" data-i18n="footer.links.contact">تواصل معنا</a></li>
                 </ul>
             </div>
             <div class="footer-section footer-social">
-                <h3>تابعنا</h3>
+                <h3 data-i18n="footer.social.title">تابعنا</h3>
                 <div class="social-icons">
                     <a href="#" target="_blank" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
-                    <a href="#" target="_blank" aria-label="Behance"><i class="fab fa-behance"></i></a>
+
                     <a href="#" target="_blank" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
                 </div>
             </div>
         </div>
         <div class="footer-bottom">
-            <p>&copy; 2025 CloyAi. جميع الحقوق محفوظة.</p>
+            <p data-i18n="footer.bottom.copyright">&copy; 2025 CloyAi. جميع الحقوق محفوظة.</p>
         </div>
     </footer>
 
-    <script>
-        // Enhanced JavaScript for responsive navigation toggle with smooth animations
-        const navToggle = document.querySelector('.nav-toggle');
-        const mainNav = document.querySelector('.main-nav');
-        const body = document.body;
-
-        navToggle.addEventListener('click', () => {
-            mainNav.classList.toggle('active');
-            navToggle.classList.toggle('active');
-            body.classList.toggle('nav-open');
-        });
-
-        // Close menu when clicking outside
-        document.addEventListener('click', (e) => {
-            if (!e.target.closest('.main-header') && mainNav.classList.contains('active')) {
-                mainNav.classList.remove('active');
-                navToggle.classList.remove('active');
-                body.classList.remove('nav-open');
-            }
-        });
-
-        // Close menu when clicking on a link
-        const navLinks = document.querySelectorAll('.main-nav a');
-        navLinks.forEach(link => {
-            link.addEventListener('click', () => {
-                if (window.innerWidth <= 768) {
-                    mainNav.classList.remove('active');
-                    navToggle.classList.remove('active');
-                    body.classList.remove('nav-open');
-                }
-            });
-        });
-    </script>
-    <script src="/auth-state.js"></script>
+    <script src="/navbar-theme.js"></script>
 </body>
 
 </html>

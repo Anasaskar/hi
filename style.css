@@ -1,22 +1,31 @@
 /* General Styling */
+* {
+    box-sizing: border-box;
+}
+
+html {
+    overflow-x: hidden;
+}
+
 body {
     font-family: 'IBM Plex Sans Arabic', sans-serif;
     background-color: #f7f9fc;
     /* Clean light gray background */
     margin: 0;
     color: #333;
-    direction: rtl;
-    /* Right-to-left for Arabic */
-    text-align: right;
     line-height: 1.6;
     padding-top: 70px;
     /* space for fixed header so content isn't hidden */
+    overflow-x: hidden;
+    width: 100%;
+    max-width: 100vw;
 }
 
 .container {
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 20px;
+    width: 100%;
 }
 
 h1,
@@ -39,21 +48,56 @@ h2 {
 
 /* Header Styling */
 .main-header {
-    background-color: #fff;
+    background-color: var(--header-bg, #fff);
     padding: 15px 0;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    box-shadow: var(--header-shadow, 0 2px 10px rgba(0, 0, 0, 0.05));
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
     z-index: 1000;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .main-header .container {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-start;
     align-items: center;
     position: relative;
+}
+
+/* Group theme toggle and hamburger together on the right */
+.main-header .right-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-left: 8px; /* sits just to the right of header-actions */
+}
+
+.main-header .theme-toggle {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: var(--text-primary);
+    font-size: 1.1rem;
+    line-height: 1;
+}
+
+.main-header .nav-toggle {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 6px 8px;
+}
+
+/* Center menu and push controls to the right on desktop */
+.main-header .main-nav { flex: 1; }
+.main-header .main-nav .nav-menu { display: flex; gap: 20px; justify-content: center; align-items: center; }
+.main-header .header-actions { margin-left: auto; display: flex; align-items: center; }
+.main-header .header-login { margin-right: 8px; }
+
+@media (min-width: 769px) {
+  .main-header .nav-toggle { display: none; }
 }
 
 /* Logo - Left Side on Desktop */
@@ -110,7 +154,7 @@ h2 {
 /* Navigation Links with Underline Animation */
 .main-nav a {
     text-decoration: none;
-    color: #555;
+    color: var(--text-secondary, #555);
     font-weight: 600;
     font-size: 1.05em;
     transition: color 0.3s ease;
@@ -158,22 +202,31 @@ h2 {
 /* Hamburger Toggle Button */
 .nav-toggle {
     display: none;
-    background: none;
-    border: none;
-    font-size: 1.8em;
+    background: var(--bg-tertiary, #f0f2f5);
+    border: 2px solid var(--border-color, #e0e0e0);
+    border-radius: 8px;
+    font-size: 1.5em;
     cursor: pointer;
-    color: #333;
-    padding: 5px;
+    color: var(--text-primary, #333);
+    padding: 8px 12px;
     z-index: 1001;
-    transition: color 0.3s ease;
+    transition: all 0.3s ease;
 }
 
 .nav-toggle:hover {
-    color: #a7f300;
+    background: var(--primary-color, #a7f300);
+    color: var(--primary-text, #333);
+    border-color: var(--primary-color, #a7f300);
+}
+
+.nav-toggle.active {
+    background: var(--primary-color, #a7f300);
+    color: var(--primary-text, #333);
 }
 
 .hamburger-icon {
     display: block;
+    font-weight: bold;
     transition: transform 0.3s ease;
 }
 
@@ -201,7 +254,7 @@ h2 {
 
 .hero-content p {
     font-size: 1.2em;
-    color: #666;
+    color: --text-secondary;
     margin-bottom: 40px;
 }
 
@@ -209,6 +262,14 @@ h2 {
     display: flex;
     gap: 20px;
 }
+
+input::placeholder {
+    color: --text-secondary;
+    /* الأبيض */
+    opacity: 1;
+    /* مهم علشان بعض المتصفحات بتقلل الشفافية افتراضيًا */
+}
+
 
 .button {
     display: inline-block;
@@ -252,13 +313,21 @@ h2 {
 .hero-media {
     flex: 1;
     text-align: center;
+    max-width: 100%;
 }
 
 .hero-media img {
     max-width: 100%;
+    width: 100%;
     height: auto;
-    border-radius: 15px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    border-radius: 20px;
+    box-shadow: 0 15px 50px rgba(0, 0, 0, 0.1);
+    display: block;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
 }
 
 /* Features Section */
@@ -271,7 +340,7 @@ h2 {
     display: flex;
     justify-content: center;
     gap: 30px;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
 }
 
 .feature-card {
@@ -303,7 +372,7 @@ h2 {
 
 .feature-card p {
     font-size: 1em;
-    color: #666;
+    color: --text-secondary;
 }
 
 /* Testimonials Section */
@@ -359,35 +428,41 @@ h2 {
 
 /* Footer Styling */
 .main-footer {
-    background-color: #2c3e50;
-    color: #f4f4f4;
+
+    background-color: var(--bg-secondary);
+    color: var(--text-secondary);
     padding: 50px 0 20px;
     font-size: 0.95em;
+    border-top: 1px solid var(--border-color);
 }
 
 .main-footer .container {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
+    /* بدل space-between */
     flex-wrap: wrap;
     gap: 30px;
     margin-bottom: 30px;
+    text-align: center;
+    /* يظبط النصوص داخل كل قسم */
 }
 
 .footer-section {
     flex: 1;
     min-width: 250px;
+    text-align: center;
+    /* يظبط العناوين والفقرات */
 }
 
 .footer-section h3 {
-    color: #a7f300;
-    /* Lemon green accent */
+    color: var(--primary-color);
     margin-bottom: 20px;
     font-size: 1.4em;
 }
 
 .footer-section p,
 .footer-section ul {
-    color: #ccc;
+    color: var(--text-secondary);
     list-style: none;
     padding: 0;
 }
@@ -398,32 +473,50 @@ h2 {
 
 .footer-section ul li a {
     text-decoration: none;
-    color: #ccc;
+    color: var(--text-secondary);
     transition: color 0.3s ease;
 }
 
 .footer-section ul li a:hover {
-    color: #a7f300;
-    /* Lemon green on hover */
+    color: var(--primary-color);
+}
+
+.social-icons {
+    justify-content: center;
+    /* يظبط أيقونات التواصل في المنتصف */
+    display: flex;
 }
 
 .social-icons a {
-    color: #ccc;
+    color: var(--text-secondary);
     font-size: 1.8em;
-    margin-left: 15px;
+    margin: 0 10px;
     transition: color 0.3s ease;
 }
 
+/* Responsive visibility helpers */
+.desktop-only { display: none; }
+.mobile-only { display: block; }
+
+@media (min-width: 769px) {
+  .desktop-only { display: inline-flex; }
+  .mobile-only { display: none !important; }
+}
+
+@media (max-width: 768px) {
+  .desktop-only { display: none !important; }
+  .mobile-only { display: block; }
+}
+
 .social-icons a:hover {
-    color: #a7f300;
-    /* Lemon green on hover */
+    color: var(--primary-color);
 }
 
 .footer-bottom {
-    border-top: 1px solid #444;
+    border-top: 1px solid var(--border-color);
     padding-top: 20px;
     text-align: center;
-    color: #999;
+    color: var(--text-secondary);
     font-size: 0.85em;
 }
 
@@ -461,7 +554,7 @@ h2 {
     .footer-section ul {
         display: inline-block;
         /* For centering lists */
-        text-align: right;
+
     }
 
     .social-icons {
@@ -565,31 +658,57 @@ h2 {
         overflow: hidden;
     }
 
+    .container {
+        padding: 0 16px;
+    }
+
     .hero-section {
-        padding: 60px 0;
+        padding: 50px 0;
+    }
+
+    .hero-section .container {
+        flex-direction: column;
+        gap: 30px;
+    }
+
+    .hero-content {
+        text-align: center;
+    }
+
+    .hero-content h1 {
+        font-size: 2.4em;
     }
 
     .hero-content p {
-        font-size: 1.1em;
+        font-size: 1.05em;
     }
 
     .cta-buttons {
         flex-direction: column;
         align-items: center;
+        gap: 12px;
     }
 
     .button {
-        width: 30%;
+        width: 100%;
+        max-width: 280px;
+    }
+
+    .hero-media img {
+        max-width: 100%;
+        height: auto;
     }
 
     .feature-cards {
         flex-direction: column;
-        align-items: center;
+        align-items: stretch;
+        gap: 20px;
     }
 
     .feature-card {
-        width: 85%;
-        padding: 30px;
+        width: 100%;
+        padding: 25px;
+        margin: 0;
     }
 
     .testimonial-slider-placeholder {
@@ -598,56 +717,108 @@ h2 {
     }
 
     .testimonial-item {
-        width: 85%;
+        width: 100%;
         max-width: unset;
+    }
+
+    .main-footer .container {
+        flex-direction: column;
+        gap: 30px;
+        text-align: center;
+    }
+
+    .footer-section {
+        width: 100%;
     }
 }
 
 @media (max-width: 480px) {
+    body {
+        padding-top: 60px;
+    }
+
     h1 {
-        font-size: 2em;
+        font-size: 1.8em;
     }
 
     h2 {
-        font-size: 1.8em;
-        margin-bottom: 30px;
+        font-size: 1.6em;
+        margin-bottom: 25px;
+    }
+
+    .container {
+        padding: 0 12px;
     }
 
     .logo {
-        font-size: 1.5em;
-    }
-
-    .hero-section {
-        padding: 40px 0;
-    }
-
-    .hero-content h1 {
-        font-size: 2em;
-    }
-
-    .hero-content p {
-        font-size: 1em;
-        margin-bottom: 30px;
-    }
-
-    .button {
-        padding: 12px 25px;
-        font-size: 1em;
-    }
-
-    .feature-card {
-        padding: 25px;
-    }
-
-    .feature-card i {
-        font-size: 3em;
-    }
-
-    .feature-card h3 {
         font-size: 1.4em;
     }
 
+    .hero-section {
+        padding: 35px 0;
+    }
+
+    .hero-content h1 {
+        font-size: 1.8em;
+        line-height: 1.3;
+    }
+
+    .hero-content p {
+        font-size: 0.95em;
+        margin-bottom: 25px;
+    }
+
+    .button {
+        padding: 12px 24px;
+        font-size: 0.95em;
+        max-width: 100%;
+    }
+
+    .feature-cards {
+        gap: 16px;
+    }
+
+    .feature-card {
+        padding: 20px;
+    }
+
+    .feature-card i {
+        font-size: 2.5em;
+        margin-bottom: 12px;
+    }
+
+    .feature-card h3 {
+        font-size: 1.3em;
+        margin-bottom: 8px;
+    }
+
+    .feature-card p {
+        font-size: 0.95em;
+    }
+
+    .testimonial-item {
+        padding: 20px;
+    }
+
     .testimonial-item p {
-        font-size: 1em;
+        font-size: 0.95em;
+    }
+
+    .main-footer {
+        padding: 30px 0 20px;
+    }
+
+    .footer-section {
+        margin-bottom: 20px;
+    }
+
+    .footer-section h3 {
+        font-size: 1.2em;
+        margin-bottom: 12px;
+    }
+
+    .footer-section p,
+    .footer-section li {
+        font-size: 0.9em;
     }
 }

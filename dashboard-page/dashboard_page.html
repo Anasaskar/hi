@@ -1,47 +1,59 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en" dir="ltr">
 
 <head>
-    <link rel="icon" type="image/png" href="../images/Logo.png">
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CloyAi - لوحة التحكم</title>
+    <title>CloyAi - Dashboard</title>
+    <script>
+        // Apply saved theme as early as possible to avoid flash of wrong theme
+        (function () {
+            try {
+                var saved = localStorage.getItem('theme') || 'light';
+                document.documentElement.setAttribute('data-theme', saved);
+            } catch (e) { /* no-op */ }
+        })();
+    </script>
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;600;700&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="/theme.css">
+    <link rel="stylesheet" href="/style.css">
     <link rel="stylesheet" href="/dashboard-page/dashboard_page_style.css">
+    <link rel="stylesheet" href="/dashboard-page/dashboard_page_modern.css">
 </head>
 
 <body>
     <div class="page-wrapper dashboard-page">
 
-        <!-- Header -->
-        <header class="dashboard-header">
-            <div class="container header-container">
-                <div class="logo">CloyAi</div>
-                <nav class="dashboard-nav">
-
-                </nav>
-                <div class="user-info">
-                    <i class="fas fa-user-circle" id="profileIcon"></i>
-                    <span>اسم المستخدم</span>
-                    <ul class="profile-menu hidden" id="profileMenu">
-                        <li><a href="#" class="logout-btn">تسجيل الخروج</a></li>
-                    </ul>
-                </div>
-
-                <button class="nav-toggle" aria-label="Toggle navigation">&#9776;</button>
-            </div>
-        </header>
+        <!-- Global navbar is injected by navbar-theme.js -->
 
         <!-- Main Content -->
         <main class="dashboard-content container">
 
             <!-- Hero Section -->
             <section class="dashboard-hero">
-                <h1>مرحبًا! ابدأ تجربة تركيب التيشيرت على الموديلات الآن.</h1>
-                <!-- <button class="button primary">ابدأ تجربة جديدة</button> -->
+                <div class="hero-content">
+                    <div class="hero-icon">
+                        <i class="fas fa-magic"></i>
+                    </div>
+                    <h1>Transform Your Products with AI</h1>
+                    <p class="hero-subtitle">Upload your T-shirt design and watch it come to life on professional models in seconds</p>
+                    <div class="hero-stats">
+                        <div class="stat-item">
+                            <i class="fas fa-bolt"></i>
+                            <span>Instant Results</span>
+                        </div>
+                        <div class="stat-item">
+                            <i class="fas fa-hd-video"></i>
+                            <span>HD Quality</span>
+                        </div>
+                        <div class="stat-item">
+                            <i class="fas fa-palette"></i>
+                            <span>Multiple Models</span>
+                        </div>
+                    </div>
+                </div>
             </section>
 
             <!-- Try-On Form + Previous Orders -->
@@ -49,128 +61,203 @@
 
                 <!-- Try-On Form Card -->
                 <div class="tryon-form-card">
-                    <h2>نموذج AI Try-On</h2>
+                    <div class="card-header">
+                        <h2><i class="fas fa-tshirt"></i> Create Your AI Try-On</h2>
+                        <p class="card-subtitle">Follow these simple steps to generate professional product photos</p>
+                    </div>
                     <form id="tryOnForm">
 
                         <!-- Model Selection -->
                         <div class="form-group">
-                            <label for="modelSelect">اختر الموديل:</label>
-                            <div class="model-selection-wrapper">
-                                <select id="modelSelect" class="custom-select" required>
-                                    <option value="">-- اختر موديل --</option>
+                            <label class="form-label">
+                                <i class="fas fa-user-circle"></i>
+                                Step 1: Choose Your Model
+                                <span class="label-badge">Required</span>
+                            </label>
+                            <p class="form-hint">Select from our professional models or upload your own</p>
+                            <div class="model-choice-toggle">
+                                <label class="radio-card">
+                                    <input type="radio" name="modelSource" id="useSiteModels" value="site" checked>
+                                    <div class="radio-card-content">
+                                        <i class="fas fa-users"></i>
+                                        <span>Use Site Models</span>
+                                        <small>Professional photography models</small>
+                                    </div>
+                                </label>
+                                <label class="radio-card">
+                                    <input type="radio" name="modelSource" id="useCustomModel" value="custom">
+                                    <div class="radio-card-content">
+                                        <i class="fas fa-upload"></i>
+                                        <span>Upload Custom Model</span>
+                                        <small>Use your own model photo</small>
+                                    </div>
+                                </label>
+                            </div>
+
+                            <!-- Site models -->
+                            <div id="siteModelsBlock" class="model-selection-wrapper">
+                                <select id="modelSelect" class="custom-select">
+                                    <option value="">-- Select a model --</option>
                                 </select>
                                 <div id="selectedModelPreview" class="model-preview hidden">
                                     <img src="" alt="Selected Model" class="model-image">
                                     <span class="model-name"></span>
                                 </div>
                             </div>
-                        </div>
 
-                        <!-- File Upload -->
-                        <div class="form-group">
-                            <label>ارفع التيشيرت (PNG/JPG):</label>
-                            <div class="file-upload-area" id="fileUploadArea">
-                                <input type="file" id="tshirtUpload" accept=".png,.jpg,.jpeg" hidden required>
+                            <!-- Custom model upload -->
+                            <div id="customModelBlock" class="file-upload-area hidden" style="margin-top:8px;">
+                                <input type="file" id="modelUpload" accept=".png,.jpg,.jpeg" hidden>
                                 <i class="fas fa-cloud-upload-alt"></i>
-                                <p>اسحب وأفلت أو <span class="browse-files">اختر من الملفات</span></p>
-                                <div id="filePreview" class="file-preview hidden">
-                                    <img src="" alt="T-shirt Preview">
+                                <p>Drag & drop or <span class="browse-files" id="browseModelFiles">browse files</span></p>
+                                <div id="modelFilePreview" class="file-preview hidden">
+                                    <img src="" alt="Model Preview">
                                     <span class="file-name"></span>
-                                    <button type="button" class="remove-file-btn"><i class="fas fa-times"></i></button>
+                                    <button type="button" class="remove-file-btn" id="removeModelFileBtn"><i class="fas fa-times"></i></button>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Background Options -->
-                        <!-- <div class="form-group">
-                            <label>خيارات الخلفية:</label>
-                            <div class="background-options">
-                                <label><input type="radio" name="background" value="white" checked> أبيض</label>
-                                <label><input type="radio" name="background" value="studio"> استوديو</label>
-                                <label><input type="radio" name="background" value="street"> شارع</label>
+                        <!-- File Upload -->
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="fas fa-tshirt"></i>
+                                Step 2: Upload Your T-Shirt
+                                <span class="label-badge">Required</span>
+                            </label>
+                            <p class="form-hint">PNG or JPG format, max 5MB. Best results with transparent backgrounds</p>
+                            <div class="file-upload-area enhanced" id="fileUploadArea">
+                                <input type="file" id="tshirtUpload" accept=".png,.jpg,.jpeg" hidden required>
+                                <div class="upload-content">
+                                    <div class="upload-icon">
+                                        <i class="fas fa-cloud-upload-alt"></i>
+                                    </div>
+                                    <p class="upload-text">Drag & drop your T-shirt here</p>
+                                    <p class="upload-subtext">or <span class="browse-files">browse files</span></p>
+                                    <div class="file-formats">
+                                        <span><i class="far fa-file-image"></i> PNG</span>
+                                        <span><i class="far fa-file-image"></i> JPG</span>
+                                        <span><i class="far fa-file-image"></i> JPEG</span>
+                                    </div>
+                                </div>
+                                <div id="filePreview" class="file-preview hidden">
+                                    <img src="" alt="T-shirt Preview">
+                                    <div class="file-info">
+                                        <span class="file-name"></span>
+                                        <button type="button" class="remove-file-btn"><i class="fas fa-times"></i></button>
+                                    </div>
+                                </div>
                             </div>
-                        </div> -->
-
-                        <!-- Additional Notes -->
-                        <!-- <div class="form-group">
-                            <label for="notes">تعليمات إضافية (اختياري):</label>
-                            <textarea id="notes" name="notes" rows="3"
-                                placeholder="مثال: ارفع التيشيرت للأعلى قليلاً، خلفية بيضاء ناعمة..."></textarea>
-                        </div> -->
+                        </div>
 
                         <!-- Submit Button -->
-                        <button type="submit" class="button primary process-button">
-                            <span class="button-text">ابدأ المعالجة</span>
-                            <span class="loading-spinner hidden"><i class="fas fa-spinner fa-spin"></i></span>
-                        </button>
+                        <div class="form-actions">
+                            <button type="submit" class="button primary process-button">
+                                <span class="button-text">
+                                    <i class="fas fa-magic"></i>
+                                    Generate AI Try-On
+                                </span>
+                                <span class="loading-spinner hidden">
+                                    <i class="fas fa-spinner fa-spin"></i>
+                                    Processing...
+                                </span>
+                            </button>
+                            <p class="button-hint"><i class="fas fa-info-circle"></i> Processing typically takes 30-60 seconds</p>
+                        </div>
 
                     </form>
                 </div>
 
-                <!-- Previous Orders Card -->
-                <div class="previous-orders-card">
-                    <h2>الطلبات السابقة</h2>
-                    <div id="previousOrdersGrid" class="orders-grid">
-                        <div class="order-item skeleton">
-                            <div class="skeleton-image"></div>
-                            <div class="skeleton-text line-1"></div>
-                            <div class="skeleton-text line-2"></div>
-                        </div>
-                        <div class="order-item skeleton">
-                            <div class="skeleton-image"></div>
-                            <div class="skeleton-text line-1"></div>
-                            <div class="skeleton-text line-2"></div>
-                        </div>
-                    </div>
-                </div>
+                <!-- Previous Orders moved to Gallery page -->
 
             </section>
 
             <!-- AI Try-On Results -->
             <section class="tryon-results-section">
-                <h2>النتائج النهائية</h2>
-                <p class="muted">هنا ستظهر الصور الناتجة بعد المعالجة بالذكاء الاصطناعي 👇</p>
+                <div class="results-header">
+                    <div>
+                        <h2><i class="fas fa-images"></i> Your AI Generated Images</h2>
+                        <p class="section-subtitle">High-quality professional product photos ready to download</p>
+                    </div>
+                </div>
 
                 <div id="resultsGrid" class="results-grid">
-                    <p class="muted" id="noResultsMessage">لم يتم إنشاء أي نتيجة بعد.</p>
+                    <div class="empty-state" id="noResultsMessage">
+                        <div class="empty-icon">
+                            <i class="fas fa-image"></i>
+                        </div>
+                        <h3>No results yet</h3>
+                        <p>Upload your T-shirt above to generate stunning AI photos</p>
+                    </div>
                 </div>
             </section>
 
         </main>
 
-        <!-- Footer -->
-        <footer class="simple-footer">
-            <div class="footer-links">
-                <a href="#">الأسعار</a>
-                <a href="#">الخصوصية</a>
-                <a href="#">الشروط</a>
+        <!-- Footer (consistent with site) -->
+        <footer class="main-footer">
+            <div class="container">
+                <div class="footer-section footer-about">
+                    <h3>CloyAi</h3>
+                    <p>AI product photography solutions for your brand.</p>
+                </div>
+                <div class="footer-section footer-links">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="/">Home</a></li>
+                        <li><a href="/pricing-page">Pricing</a></li>
+                        <li><a href="/contact-page">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section footer-social">
+                    <h3>Follow Us</h3>
+                    <div class="social-icons">
+                        <a href="#" target="_blank" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="#" target="_blank" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                    </div>
+                </div>
             </div>
-            <p>&copy; 2025 CloyAi. جميع الحقوق محفوظة.</p>
-            <div class="social-icons">
-                <a href="#" target="_blank" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
-                <a href="#" target="_blank" aria-label="Behance"><i class="fab fa-behance"></i></a>
-                <a href="#" target="_blank" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+            <div class="footer-bottom">
+                <p>&copy; 2025 CloyAi. All rights reserved.</p>
             </div>
         </footer>
 
         <!-- Toast Notifications -->
         <div class="toast-notification success hidden" id="processingSuccessToast">
             <i class="fas fa-check-circle"></i>
-            <span>تم إرسال طلبك بنجاح!</span>
+            <span>Your request was submitted successfully!</span>
         </div>
         <div class="toast-notification error hidden" id="processingErrorToast">
             <i class="fas fa-exclamation-circle"></i>
-            <span>فشل إرسال الطلب. يرجى المحاولة مرة أخرى.</span>
+            <span>Failed to submit the request. Please try again.</span>
         </div>
         <div class="toast-notification error hidden" id="validationErrorToast">
             <i class="fas fa-exclamation-circle"></i>
-            <span>يرجى ملء جميع الحقول المطلوبة.</span>
+            <span>Please fill in all required fields.</span>
         </div>
 
     </div>
 
+    <script>
+        // Theme init and toggle for dashboard
+        (function () {
+            const saved = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', saved);
+            const toggle = document.querySelector('.theme-toggle');
+            const icon = toggle?.querySelector('i');
+            function setIcon(theme) { if (icon) { icon.className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon'; } }
+            setIcon(saved);
+            toggle?.addEventListener('click', () => {
+                const current = document.documentElement.getAttribute('data-theme') || 'light';
+                const next = current === 'dark' ? 'light' : 'dark';
+                document.documentElement.setAttribute('data-theme', next);
+                localStorage.setItem('theme', next);
+                setIcon(next);
+            });
+        })();
+    </script>
+    <script src="/navbar-theme.js"></script>
     <script src="/dashboard-page/dashboard_page_script.js"></script>
-    <script src="/auth-state.js"></script>
 </body>
 
 </html>

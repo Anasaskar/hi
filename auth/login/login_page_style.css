@@ -1,26 +1,21 @@
 /* General Page Wrapper (scoped) */
 .login-page-body {
     font-family: 'IBM Plex Sans Arabic', sans-serif;
-    background: linear-gradient(135deg, #f0f2f5 0%, #e0e5ec 100%);
-    /* Light gray gradient background */
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    background-color: var(--bg-primary);
     min-height: 100vh;
     margin: 0;
-    color: #333;
-    direction: rtl;
-    /* Right-to-left for Arabic */
-    text-align: right;
+    color: var(--text-primary);
+    direction: lrt;
+
     line-height: 1.6;
+    display: flex;
+    flex-direction: column;
 }
 
 .page-wrapper {
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    align-items: center;
-    min-height: 100vh;
+    flex: 1;
     width: 100%;
     padding: 20px;
     box-sizing: border-box;
@@ -36,40 +31,34 @@
 .simple-header .logo {
     font-size: 2.5em;
     font-weight: 700;
-    color: #a7f300;
-    /* Lemon green accent */
+    color: var(--primary-color);
     margin-bottom: 20px;
 }
 
 /* Login Main Section & Card */
 .login-main {
-    flex-grow: 1;
-    /* Allows it to take available space */
+    flex: 1;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     width: 100%;
     position: relative;
-    /* For toast notifications positioning */
+    min-height: 400px;
 }
 
 .login-card {
-    background-color: #fff;
+    background-color: var(--card-bg);
     border-radius: 20px;
-    /* 2xl border radius */
     padding: 40px;
-    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--border-color);
     width: 100%;
     max-width: 450px;
-    /* Max width for the card */
-    text-align: center;
+    text-align: left;
     opacity: 0;
-    /* Hidden by default for animation */
     transform: translateY(30px);
-    /* Starts slightly below */
     animation: fadeInSlideUp 0.7s ease-out forwards;
-    /* Animation */
 }
 
 @keyframes fadeInSlideUp {
@@ -87,13 +76,14 @@
 
 .login-card h2 {
     font-size: 2.2em;
-    color: #2c3e50;
+    color: var(--text-primary);
     margin-bottom: 10px;
 }
 
 .login-card .subtitle {
+    text-align: center;
     font-size: 1.05em;
-    color: #666;
+    color: var(--text-secondary);
     margin-bottom: 30px;
 }
 
@@ -103,34 +93,34 @@
 
 .form-group {
     margin-bottom: 20px;
-    text-align: right;
-    /* Ensure labels are right-aligned */
+
 }
 
 .form-group label {
+    text-align: left;
     display: block;
     font-size: 0.95em;
-    color: #444;
+    color: var(--text-primary);
     margin-bottom: 8px;
     font-weight: 600;
 }
 
 .form-group input[type="email"],
-.form-group input[type="password"] {
+.form-group input[type="password"],
+.form-group input[type="text"] {
     width: calc(100% - 24px);
-    /* Account for padding and border */
     padding: 12px;
-    border: 1px solid #ddd;
+    border: 1px solid var(--input-border);
+    background-color: var(--input-bg);
     border-radius: 10px;
     font-size: 1em;
-    color: #333;
+    color: var(--text-primary);
     transition: border-color 0.3s ease, box-shadow 0.3s ease;
     font-family: 'IBM Plex Sans Arabic', sans-serif;
 }
 
 .form-group input:focus {
-    border-color: #a7f300;
-    /* Lemon green accent on focus */
+    border-color: var(--primary-color);
     box-shadow: 0 0 0 3px rgba(167, 243, 0, 0.2);
     outline: none;
 }
@@ -138,31 +128,29 @@
 .remember-me {
     display: flex;
     align-items: center;
-    justify-content: flex-end;
+    justify-content: flex-start;
     /* Align to the right for RTL */
     margin-bottom: 30px;
 }
 
 .remember-me input[type="checkbox"] {
     margin-left: 10px;
-    /* Space between checkbox and label */
     width: 18px;
     height: 18px;
-    accent-color: #a7f300;
-    /* Lemon green for checkbox */
+    accent-color: var(--primary-color);
 }
 
 .remember-me label {
     margin-bottom: 0;
-    /* Reset label margin */
     font-weight: normal;
     cursor: pointer;
+    color: var(--text-primary);
 }
 
-.login-button {
-    background-color: #a7f300;
-    /* Lemon green accent */
-    color: #fff;
+.login-button,
+.register-button {
+    background-color: var(--primary-color);
+    color: var(--primary-text);
     border: none;
     padding: 15px 0;
     border-radius: 30px;
@@ -174,23 +162,26 @@
     margin-bottom: 20px;
 }
 
-.login-button:hover {
-    background-color: #92d900;
+.login-button:hover,
+.register-button:hover {
+    background-color: var(--primary-hover);
     transform: translateY(-2px);
     box-shadow: 0 8px 20px rgba(167, 243, 0, 0.3);
 }
 
-.register-link {
+.register-link,
+.login-link {
+    text-align: center;
     display: block;
     text-decoration: none;
-    color: #555;
+    color: var(--text-secondary);
     font-size: 0.95em;
     transition: color 0.3s ease;
 }
 
-.register-link:hover {
-    color: #a7f300;
-    /* Lemon green accent on hover */
+.register-link:hover,
+.login-link:hover {
+    color: var(--primary-color);
 }
 
 /* Toast Notifications */
@@ -249,9 +240,10 @@
     width: 100%;
     text-align: center;
     padding: 30px 0 10px;
-    border-top: 1px solid #e0e0e0;
-    color: #777;
+    border-top: 1px solid var(--border-color);
+    color: var(--text-secondary);
     font-size: 0.9em;
+    background-color: var(--bg-secondary);
 }
 
 .simple-footer .footer-links {
@@ -259,14 +251,14 @@
 }
 
 .simple-footer .footer-links a {
-    color: #777;
+    color: var(--text-secondary);
     text-decoration: none;
     margin: 0 15px;
     transition: color 0.3s ease;
 }
 
 .simple-footer .footer-links a:hover {
-    color: #a7f300;
+    color: var(--primary-color);
 }
 
 .simple-footer .social-icons {
@@ -274,14 +266,14 @@
 }
 
 .simple-footer .social-icons a {
-    color: #777;
+    color: var(--text-secondary);
     font-size: 1.5em;
     margin: 0 10px;
     transition: color 0.3s ease;
 }
 
 .simple-footer .social-icons a:hover {
-    color: #a7f300;
+    color: var(--primary-color);
 }
 
 

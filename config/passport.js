@@ -4,10 +4,12 @@
 // ===================================================================
 
 const passport = require('passport');
+const LocalStrategy = require('passport-local').Strategy;
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const FacebookStrategy = require('passport-facebook').Strategy;
 const AppleStrategy = require('passport-apple').Strategy;
 const VKontakteStrategy = require('passport-vkontakte').Strategy;
+const bcrypt = require('bcrypt');
 const User = require('../models/User');
 
 // ===================================================================
@@ -30,6 +32,7 @@ passport.deserializeUser(async (id, done) => {
 // ===================================================================
 // HELPER FUNCTION: Find or Create User from Social Profile
 // This handles user creation/login for all social providers
+// ACCOUNT LINKING: If email exists with 'local' provider, links to social provider
 // ===================================================================
 async function findOrCreateSocialUser(profile, provider, done) {
     try {
@@ -46,18 +49,26 @@ async function findOrCreateSocialUser(profile, provider, done) {
         let user = await User.findOne({ email: email.toLowerCase() });
 
         if (user) {
-            // User exists - check if they're using the same provider
-            console.log(`✅ Existing user found:`, user.email);
+            // User exists - check provider and link account if needed
+            console.log(`✅ Existing user found: ${user.email} (current provider: ${user.provider})`);
             
-            // If user registered with local auth, allow them to link social account
-            if (user.provider === 'local') {
-                console.log(`🔗 Linking ${provider} account to existing local account`);
-                user.providerId = profile.id;
+            // If user registered with local auth, link to social provider
+            if (user.provider === 'local' || user.provider !== provider) {
+                console.log(`🔗 Linking/updating ${provider} account for user ${user.email}`);
                 user.provider = provider;
+                user.providerId = profile.id;
+                user.emailConfirmed = true; // Auto-confirm when linking social
+                
+                // Update profile info from social provider if available
+                if (profile.displayName && !user.fullName) {
+                    user.fullName = profile.displayName;
+                } else if (profile.name && !user.fullName) {
+                    user.fullName = `${profile.name.givenName || ''} ${profile.name.familyName || ''}`.trim();
+                }
+                
                 await user.save();
+                console.log(`✅ Account linked to ${provider}`);
             }
-            // If user is using a different social provider, still allow login
-            // (One email can be linked to multiple social providers)
             
             return done(null, user);
         }
@@ -89,6 +100,45 @@ async function findOrCreateSocialUser(profile, provider, done) {
         return done(err, null);
     }
 }
+
+// ===================================================================
+// LOCAL STRATEGY (Email/Password)
+// ===================================================================
+passport.use(new LocalStrategy({
+    usernameField: 'email',
+    passwordField: 'password'
+}, async (email, password, done) => {
+    try {
+        const user = await User.findOne({ email: email.toLowerCase() });
+        
+        if (!user) {
+            return done(null, false, { message: 'No user with that email' });
+        }
+        
+        // Verify provider is local
+        if (user.provider !== 'local') {
+            return done(null, false, { 
+                message: `This account is registered with ${user.provider}. Please use that method to login.` 
+            });
+        }
+        
+        // Verify password
+        const isMatch = await bcrypt.compare(password, user.passwordHash);
+        if (!isMatch) {
+            return done(null, false, { message: 'Incorrect password' });
+        }
+        
+        // Check email confirmation
+        if (!user.emailConfirmed) {
+            return done(null, false, { message: 'Please confirm your email before logging in' });
+        }
+        
+        return done(null, user);
+    } catch (err) {
+        return done(err);
+    }
+}));
+console.log('✅ Local (email/password) strategy configured');
 
 // ===================================================================
 // GOOGLE OAUTH STRATEGY
