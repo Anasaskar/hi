@@ -19,43 +19,78 @@
             justify-content: center;
             overflow: hidden;
         }
-        
+
         .error-number {
             font-size: 150px;
             font-weight: bold;
             color: #333;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
             animation: float 6s ease-in-out infinite;
         }
-        
+
         .floating-clothes {
             position: absolute;
             opacity: 0.2;
             animation: spin 20s linear infinite;
         }
-        
-        .clothes-1 { top: 10%; left: 10%; font-size: 40px; animation-delay: 0s; }
-        .clothes-2 { top: 20%; right: 20%; font-size: 35px; animation-delay: 2s; }
-        .clothes-3 { bottom: 30%; left: 30%; font-size: 45px; animation-delay: 4s; }
-        .clothes-4 { bottom: 20%; right: 15%; font-size: 38px; animation-delay: 6s; }
-        
+
+        .clothes-1 {
+            top: 10%;
+            left: 10%;
+            font-size: 40px;
+            animation-delay: 0s;
+        }
+
+        .clothes-2 {
+            top: 20%;
+            right: 20%;
+            font-size: 35px;
+            animation-delay: 2s;
+        }
+
+        .clothes-3 {
+            bottom: 30%;
+            left: 30%;
+            font-size: 45px;
+            animation-delay: 4s;
+        }
+
+        .clothes-4 {
+            bottom: 20%;
+            right: 15%;
+            font-size: 38px;
+            animation-delay: 6s;
+        }
+
         @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-20px); }
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-20px);
+            }
         }
-        
+
         @keyframes spin {
-            from { transform: rotate(0deg) translateY(0); }
-            to { transform: rotate(360deg) translateY(-100px); }
+            from {
+                transform: rotate(0deg) translateY(0);
+            }
+
+            to {
+                transform: rotate(360deg) translateY(-100px);
+            }
         }
-        
+
         .error-message {
             text-align: center;
             margin: 20px 0;
             font-size: 24px;
             color: #666;
         }
-        
+
         .back-button {
             padding: 12px 30px;
             font-size: 18px;
@@ -66,7 +101,7 @@
             cursor: pointer;
             transition: background-color 0.3s ease, transform 0.2s ease;
         }
-        
+
         .back-button:hover {
             background-color: #92d900;
             transform: translateY(-2px);
@@ -78,7 +113,7 @@
 <body>
     <header class="main-header">
         <div class="container">
-            <div class="logo">CloyAi</div>
+            <a href="/login" class="button primary header-login">تسجيل الدخول</a>
             <nav class="main-nav">
                 <ul>
                     <li><a href="/">الرئيسية</a></li>
@@ -87,7 +122,9 @@
                 </ul>
             </nav>
             <button class="nav-toggle" aria-label="Toggle navigation">&#9776;</button>
-            <a href="/login" class="button primary header-login">تسجيل الدخول</a>
+
+            <a href="/" class="logo">CloyAi</a>
+
         </div>
     </header>
 
@@ -97,7 +134,7 @@
             <div class="floating-clothes clothes-2"><i class="fas fa-hat-cowboy"></i></div>
             <div class="floating-clothes clothes-3"><i class="fas fa-socks"></i></div>
             <div class="floating-clothes clothes-4"><i class="fas fa-shoe-prints"></i></div>
-            
+
             <div class="error-number">404</div>
             <h1 class="error-message">عذراً — هذه الصفحة غير موجودة</h1>
             <p style="font-size:1.1em; color:#666; margin-bottom:30px; text-align: center;">

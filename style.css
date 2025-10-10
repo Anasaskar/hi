@@ -43,7 +43,6 @@ h2 {
     padding: 15px 0;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
     position: fixed;
-    /* keep header fixed at the very top */
     top: 0;
     left: 0;
     right: 0;
@@ -54,21 +53,38 @@ h2 {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    position: relative;
 }
 
-/* Header-specific login button (compact variant of .button.primary) */
-.header-login {
-    padding: 8px 18px;
-    border-radius: 22px;
-    font-size: 1em;
-    line-height: 1;
-}
-
+/* Logo - Left Side on Desktop */
 .logo {
+    text-decoration: none;
     font-size: 1.8em;
     font-weight: 700;
     color: #a7f300;
-    /* Lemon green accent */
+    transition: color 0.3s ease;
+    z-index: 1001;
+}
+
+.logo:hover {
+    color: #92d900;
+}
+
+/* Navigation - Center on Desktop */
+.main-nav {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.nav-menu {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 40px;
 }
 
 .main-nav ul {
@@ -76,34 +92,93 @@ h2 {
     margin: 0;
     padding: 0;
     display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 40px;
 }
 
 .main-nav li {
-    margin-right: 30px;
-    /* Spacing between nav items */
+    margin: 0;
+    position: relative;
 }
 
+/* Hide mobile login item on desktop */
+.mobile-login-item {
+    display: none;
+}
+
+/* Navigation Links with Underline Animation */
 .main-nav a {
     text-decoration: none;
     color: #555;
     font-weight: 600;
     font-size: 1.05em;
     transition: color 0.3s ease;
+    position: relative;
+    padding-bottom: 5px;
+}
+
+.main-nav a::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background-color: #a7f300;
+    transition: width 0.3s ease;
 }
 
 .main-nav a:hover {
     color: #a7f300;
-    /* Lemon green accent on hover */
 }
 
+.main-nav a:hover::after {
+    width: 100%;
+}
+
+/* Login Button - Right Side on Desktop */
+.header-login {
+    padding: 10px 24px;
+    border-radius: 25px;
+    font-size: 1em;
+    line-height: 1;
+    transition: all 0.3s ease;
+}
+
+.desktop-login {
+    display: inline-block;
+}
+
+.mobile-login-link {
+    color: #a7f300 !important;
+    font-weight: 700 !important;
+}
+
+/* Hamburger Toggle Button */
 .nav-toggle {
     display: none;
-    /* Hidden by default for desktop */
     background: none;
     border: none;
     font-size: 1.8em;
     cursor: pointer;
     color: #333;
+    padding: 5px;
+    z-index: 1001;
+    transition: color 0.3s ease;
+}
+
+.nav-toggle:hover {
+    color: #a7f300;
+}
+
+.hamburger-icon {
+    display: block;
+    transition: transform 0.3s ease;
+}
+
+.nav-toggle.active .hamburger-icon {
+    transform: rotate(90deg);
 }
 
 /* Hero Section */
@@ -281,6 +356,7 @@ h2 {
     padding: 5px 10px;
     border-radius: 5px;
 }
+
 /* Footer Styling */
 .main-footer {
     background-color: #2c3e50;
@@ -406,33 +482,87 @@ h2 {
         font-size: 2em;
     }
 
+    /* Mobile Navigation Styles */
     .main-nav {
-        display: none;
-        /* Hide navigation by default */
-        flex-direction: column;
-        width: 100%;
-        background-color: #fff;
-        position: absolute;
+        position: fixed;
         top: 70px;
-        /* Adjust based on header height */
         right: 0;
+        left: 0;
+        background-color: #fff;
         box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-        padding: 20px 0;
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.4s ease, opacity 0.3s ease;
+        opacity: 0;
+        transform: none;
     }
 
     .main-nav.active {
-        display: flex;
-        /* Show when active */
+        max-height: 400px;
+        opacity: 1;
+    }
+
+    .nav-menu {
+        flex-direction: column;
+        gap: 0;
+        padding: 20px 0;
+    }
+
+    .main-nav ul {
+        flex-direction: column;
+        gap: 0;
+        padding: 20px 0;
     }
 
     .main-nav li {
-        margin: 10px 0;
+        width: 100%;
         text-align: center;
+        border-bottom: 1px solid #f0f0f0;
+        margin: 0;
     }
 
+    .main-nav li:last-child {
+        border-bottom: none;
+    }
+
+    .main-nav a {
+        display: block;
+        padding: 15px 20px;
+        font-size: 1.1em;
+    }
+
+    /* Remove underline animation on mobile, use background highlight instead */
+    .main-nav a::after {
+        display: none;
+    }
+
+    .main-nav a:hover {
+        background-color: rgba(167, 243, 0, 0.1);
+    }
+
+    /* Show mobile login item in dropdown */
+    .mobile-login-item {
+        display: block;
+        background-color: rgba(167, 243, 0, 0.05);
+    }
+
+    .mobile-login-link {
+        font-size: 1.15em !important;
+    }
+
+    /* Hide desktop login button on mobile */
+    .desktop-login {
+        display: none !important;
+    }
+
+    /* Show hamburger menu button */
     .nav-toggle {
         display: block;
-        /* Show toggle button */
+    }
+
+    /* Prevent body scroll when menu is open */
+    body.nav-open {
+        overflow: hidden;
     }
 
     .hero-section {
@@ -449,8 +579,7 @@ h2 {
     }
 
     .button {
-        width: 80%;
-        max-width: 300px;
+        width: 30%;
     }
 
     .feature-cards {

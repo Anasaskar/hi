@@ -7,6 +7,31 @@
             text-align: right;
         }
 
+        /* ===== Banner ===== */
+        .banner {
+            background: linear-gradient(90deg, #a7f300, #76c500);
+            color: #fff;
+            font-weight: 600;
+            padding: 15px 25px;
+            border-radius: 12px;
+            max-width: 900px;
+            margin: 40px auto;
+            text-align: center;
+            font-size: 1.1em;
+            animation: glow 2.5s infinite alternate ease-in-out;
+            box-shadow: 0 4px 15px rgba(167, 243, 0, 0.3);
+        }
+
+        @keyframes glow {
+            0% {
+                box-shadow: 0 0 10px rgba(167, 243, 0, 0.3);
+            }
+
+            100% {
+                box-shadow: 0 0 25px rgba(167, 243, 0, 0.6);
+            }
+        }
+
         .pricing-container {
             text-align: center;
             padding: 80px 20px;
@@ -30,11 +55,15 @@
         .pricing-cards {
             display: flex;
             justify-content: center;
+            align-items: stretch;
+            flex-wrap: nowrap;
+            /* خلي الكروت في صف واحد */
             gap: 30px;
-            flex-wrap: wrap;
         }
 
         .pricing-card {
+            flex: 1 1 320px;
+            max-width: 360px;
             background: linear-gradient(145deg, #ffffff, #f2f4f7);
             border-radius: 25px;
             padding: 40px 30px;
@@ -136,17 +165,21 @@
         @media (max-width: 1024px) {
             .pricing-cards {
                 gap: 25px;
+                flex-wrap: wrap;
+                /* عشان يبدأوا يكسروا لو الشاشة صغيرة */
             }
         }
 
         @media (max-width: 768px) {
             .pricing-cards {
                 flex-direction: column;
+                /* تحت بعض في الشاشات الصغيرة */
                 align-items: center;
             }
 
             .pricing-card {
                 width: 90%;
+                max-width: 400px;
             }
 
             .pro-card {
