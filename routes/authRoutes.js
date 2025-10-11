@@ -44,6 +44,9 @@ router.post('/login', authController.login);
 // Confirm email address
 router.post('/confirm', authController.confirmEmail);
 
+// Resend confirmation email
+router.post('/resend-confirm', authController.resendConfirmation);
+
 // Logout
 router.post('/logout', authController.logout);
 

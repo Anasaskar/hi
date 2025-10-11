@@ -7,6 +7,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const User = require('../models/User');
+const { sendVerificationEmail } = require('../utils/emailService');
 
 // ===================================================================
 // HELPER: Generate JWT Token
@@ -67,17 +68,26 @@ exports.register = async (req, res) => {
         await user.save();
         console.log("✅ New local user saved:", user.email);
 
-        // Generate confirmation URL (for email - not sending in this implementation)
+        // Generate confirmation URL
         const confirmUrl = `${req.protocol}://${req.get('host')}/auth/confirm/confirm_page.html?token=${confirmToken}&email=${encodeURIComponent(user.email)}`;
         console.log('📧 Confirmation URL:', confirmUrl);
 
+        // Send verification email via Brevo
+        const emailResult = await sendVerificationEmail(user.email, user.fullName, confirmUrl);
+        
+        if (!emailResult.success) {
+            console.error('⚠️ Failed to send verification email:', emailResult.error);
+            // Don't fail registration if email fails - user can resend
+        }
+
         res.status(201).json({ 
-            message: 'تم إنشاء الحساب بنجاح. يجب تأكيد البريد الإلكتروني.',
-            confirmUrl // Include for development/testing
+            message: 'Account created successfully. Verification email sent to your inbox.',
+            email: user.email,
+            emailSent: emailResult.success
         });
     } catch (err) {
         console.error('❌ Registration error:', err);
-        res.status(500).json({ message: 'خطأ في الخادم' });
+        res.status(500).json({ message: 'Server error' });
     }
 };
 
@@ -171,6 +181,66 @@ exports.confirmEmail = async (req, res) => {
         res.json({ message: 'Email confirmed successfully' });
     } catch (err) {
         console.error('❌ Email confirmation error:', err);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+// ===================================================================
+// RESEND EMAIL CONFIRMATION
+// ===================================================================
+exports.resendConfirmation = async (req, res) => {
+    try {
+        const { email } = req.body;
+        
+        if (!email) {
+            return res.status(400).json({ message: 'Email is required' });
+        }
+
+        // Find user
+        const user = await User.findOne({ email: email.toLowerCase() });
+        
+        if (!user) {
+            return res.status(404).json({ message: 'No user found with this email address' });
+        }
+
+        // Check if already confirmed
+        if (user.emailConfirmed) {
+            return res.status(400).json({ message: 'Email already verified' });
+        }
+
+        // Check if user is local provider
+        if (user.provider !== 'local') {
+            return res.status(400).json({ message: 'This account does not require email verification' });
+        }
+
+        // Generate new token if expired or missing
+        if (!user.emailConfirmToken || !user.emailConfirmExpires || Date.now() > user.emailConfirmExpires) {
+            user.emailConfirmToken = crypto.randomBytes(20).toString('hex');
+            user.emailConfirmExpires = Date.now() + 24 * 3600 * 1000; // 24 hours
+            await user.save();
+        }
+
+        // Generate confirmation URL
+        const confirmUrl = `${req.protocol}://${req.get('host')}/auth/confirm/confirm_page.html?token=${user.emailConfirmToken}&email=${encodeURIComponent(user.email)}`;
+        
+        // Send verification email
+        const emailResult = await sendVerificationEmail(user.email, user.fullName, confirmUrl);
+        
+        if (!emailResult.success) {
+            console.error('⚠️ Failed to resend verification email:', emailResult.error);
+            return res.status(500).json({ 
+                message: 'Failed to send verification email. Please try again later.',
+                error: emailResult.error 
+            });
+        }
+
+        console.log('✅ Verification email resent to:', user.email);
+        res.json({ 
+            message: 'Verification email sent successfully. Please check your inbox.',
+            email: user.email
+        });
+    } catch (err) {
+        console.error('❌ Resend confirmation error:', err);
         res.status(500).json({ message: 'Server error' });
     }
 };
