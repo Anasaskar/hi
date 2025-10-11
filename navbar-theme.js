@@ -12,7 +12,7 @@ const DEFAULT_TRANSLATIONS = {
     nav: {
         home: 'Home',
         pricing: 'Pricing',
-        contact: 'Contact',
+        contact: 'About Us',
         about: 'About Us',
         dashboard: 'Dashboard',
         gallery: 'Gallery',
@@ -66,7 +66,7 @@ const DEFAULT_TRANSLATIONS = {
             title: 'Quick Links',
             home: 'Home',
             pricing: 'Pricing',
-            contact: 'Contact Us'
+            contact: 'About Us'
         },
         social: {
             title: 'Follow Us'
@@ -223,7 +223,7 @@ function createPlaceholderNavbar() {
                     <ul class="nav-menu">
                         <li><a href="/">${t('nav.home')}</a></li>
                         <li><a href="/pricing-page">${t('nav.pricing')}</a></li>
-                        <li><a href="/contact-page">${t('nav.about')}</a></li>
+                        <li><a href="/about-us">${t('nav.about')}</a></li>
                     </ul>
                 </nav>
 
@@ -260,7 +260,7 @@ function createPublicNavbar() {
                     <ul class="nav-menu">
                         <li><a href="/">${t('nav.home')}</a></li>
                         <li><a href="/pricing-page">${t('nav.pricing')}</a></li>
-                        <li><a href="/contact-page">${t('nav.about')}</a></li>
+                        <li><a href="/about-us">${t('nav.about')}</a></li>
                         <li class="mobile-only"><a href="/login">${t('nav.login')}</a></li>
                     </ul>
                 </nav>
@@ -296,7 +296,7 @@ function createAuthNavbar(user) {
                         <li><a href="/dashboard">${t('nav.dashboard')}</a></li>
                         <li><a href="/gallery">${t('nav.gallery')}</a></li>
                         <li><a href="/pricing-page">${t('nav.pricing')}</a></li>
-                        <li><a href="/contact-page">${t('nav.about')}</a></li>
+                        <li><a href="/about-us">${t('nav.about')}</a></li>
                     </ul>
                 </nav>
 

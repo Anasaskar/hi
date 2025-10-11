@@ -211,6 +211,9 @@ async function pollTaskUntilComplete(taskId, maxAttempts = 30, delayMs = 2000) {
 // ========= STATIC FILES =========
 app.use(express.static(path.join(__dirname)));
 
+// Serve contact-page CSS at /about-us path
+app.use('/about-us', express.static(path.join(__dirname, 'contact-page')));
+
 // ========= AUTHENTICATION ROUTES (Modular) =========
 app.use('/api/auth', authRoutes);
 
@@ -224,8 +227,13 @@ app.get('/pricing-page', (req, res) => {
 	res.sendFile(path.join(__dirname, 'pricing-page', 'pricing_page.html'));
 });
 
-app.get('/contact-page', (req, res) => {
+app.get('/about-us', (req, res) => {
     res.sendFile(path.join(__dirname, 'contact-page', 'contact_page.html'));
+});
+
+// Redirect old URL to new one
+app.get('/contact-page', (req, res) => {
+    res.redirect(301, '/about-us');
 });
 
 app.get('/gallery', ensureAuth, async (req, res) => {
