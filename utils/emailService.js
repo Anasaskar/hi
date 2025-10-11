@@ -6,7 +6,7 @@
 const axios = require('axios');
 
 // Brevo API Configuration
-const BREVO_API_KEY = process.env.BREVO_API_KEY || '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';
+const BREVO_API_KEY = process.env.BREVO_API_KEY || '';
 const BREVO_API_URL = 'https://api.brevo.com/v3/smtp/email';
 
 // Default sender information
