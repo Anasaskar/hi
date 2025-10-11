@@ -115,10 +115,10 @@ passport.use(new LocalStrategy({
             return done(null, false, { message: 'No user with that email' });
         }
         
-        // Verify provider is local
-        if (user.provider !== 'local') {
+        // Check if user has a password (allow login even if provider is not 'local')
+        if (!user.passwordHash) {
             return done(null, false, { 
-                message: `This account is registered with ${user.provider}. Please use that method to login.` 
+                message: `This account is registered with ${user.provider} and has no password. Please use ${user.provider} to login or set a password first.` 
             });
         }
         

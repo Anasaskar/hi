@@ -30,6 +30,19 @@ exports.register = async (req, res) => {
         // Check if user already exists
         const existing = await User.findOne({ email: email.toLowerCase() });
         if (existing) {
+            // If user registered via Google/social but has no password, allow adding password
+            if (existing.provider !== 'local' && !existing.passwordHash) {
+                console.log(`🔗 Adding local password to ${existing.provider} user: ${existing.email}`);
+                const passwordHash = await bcrypt.hash(password, 12);
+                existing.passwordHash = passwordHash;
+                existing.emailConfirmed = true; // Auto-confirm since social was already confirmed
+                await existing.save();
+                
+                return res.status(200).json({ 
+                    message: 'تم إضافة كلمة المرور للحساب بنجاح. يمكنك الآن تسجيل الدخول بالطريقتين.',
+                    accountLinked: true
+                });
+            }
             return res.status(409).json({ message: 'البريد الإلكتروني مستخدم مسبقًا' });
         }
 
@@ -83,10 +96,10 @@ exports.login = async (req, res) => {
             return res.status(401).json({ message: 'لا يوجد مستخدم بهذا البريد الإلكتروني' });
         }
 
-        // Check if user registered via social login
-        if (user.provider !== 'local') {
+        // Check if user has a password (allow login even if provider is Google)
+        if (!user.passwordHash) {
             return res.status(401).json({ 
-                message: `هذا الحساب مسجل عبر ${user.provider}. يرجى استخدام نفس الطريقة لتسجيل الدخول.` 
+                message: `هذا الحساب مسجل عبر ${user.provider} وليس لديه كلمة مرور. يرجى استخدام ${user.provider} أو إنشاء كلمة مرور أولاً.` 
             });
         }
 
