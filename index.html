@@ -27,11 +27,11 @@
                     <p data-i18n="hero.subtitle">Unleash the power of AI to create stunning product images at minimal
                         cost and in record time.</p>
                     <div class="cta-buttons">
-                        <a href="/dashboard-page/dashboard_page.html" class="btn-primary-hero dashboard-link">
+                        <a href="/dashboard-page/dashboard_page.html" class="btn-primary-hero dashboard-link" id="getDashboardBtn">
                             <span data-i18n="hero.cta.start">Get Started Free</span>
                             <i class="fas fa-arrow-right"></i>
                         </a>
-                        <a href="/gallery-page/gallery_page.html" class="btn-secondary-hero">
+                        <a href="/gallery-page/gallery_page.html" class="btn-secondary-hero" id="getGalleryBtn">
                             <i class="fas fa-play-circle"></i>
                             <span data-i18n="hero.cta.demo">View Gallery</span>
                         </a>
@@ -125,10 +125,74 @@
         </div>
         <div class="footer-bottom">
             <p data-i18n="footer.bottom.copyright">&copy; 2025 CloyAi. جميع الحقوق محفوظة.</p>
+            <div class="footer-legal">
+                <a href="/privacy-page/privacy_page.html">Privacy Policy</a>
+                <span>•</span>
+                <a href="/terms-page/terms_page.html">Terms of Service</a>
+            </div>
         </div>
     </footer>
 
     <script src="/navbar-theme.js"></script>
+    <script>
+        // Conditional navigation based on user authentication and subscription status
+        document.addEventListener('DOMContentLoaded', function() {
+            const dashboardBtn = document.getElementById('getDashboardBtn');
+            const galleryBtn = document.getElementById('getGalleryBtn');
+
+            // Function to check user authentication and subscription status
+            async function handleProtectedNavigation(event, targetUrl) {
+                event.preventDefault();
+
+                try {
+                    // Check if user is logged in
+                    const response = await fetch('/api/user/info', { credentials: 'include' });
+
+                    if (!response.ok) {
+                        // User is not logged in - redirect to login page
+                        window.location.href = '/auth/login/login_page.html';
+                        return;
+                    }
+
+                    // User is logged in - check subscription type
+                    const user = await response.json();
+
+                    if (user.type === 'unpay') {
+                        // User is logged in but unpaid - redirect to pricing page
+                        window.location.href = '/pricing-page/pricing_page.html';
+                        return;
+                    }
+
+                    if (user.type === 'pay') {
+                        // User is logged in and paid - allow navigation
+                        window.location.href = targetUrl;
+                        return;
+                    }
+
+                    // Default case - redirect to pricing page
+                    window.location.href = '/pricing-page/pricing_page.html';
+
+                } catch (error) {
+                    console.error('Authentication check failed:', error);
+                    // On error, redirect to login page
+                    window.location.href = '/auth/login/login_page.html';
+                }
+            }
+
+            // Attach click handlers to both buttons
+            if (dashboardBtn) {
+                dashboardBtn.addEventListener('click', function(e) {
+                    handleProtectedNavigation(e, '/dashboard-page/dashboard_page.html');
+                });
+            }
+
+            if (galleryBtn) {
+                galleryBtn.addEventListener('click', function(e) {
+                    handleProtectedNavigation(e, '/gallery-page/gallery_page.html');
+                });
+            }
+        });
+    </script>
 </body>
 
 </html>
