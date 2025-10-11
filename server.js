@@ -25,6 +25,29 @@ const { ensureAuth, requirePaid, verifyToken } = require('./middleware/auth');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+app.enable('trust proxy');
+
+app.use((req, res, next) => {
+  // ✅ شغّال عادي في البيئة المحلية (بدون تحويل)
+  if (process.env.NODE_ENV !== 'production') {
+    return next();
+  }
+
+  const host = req.headers.host;
+
+  // لو المستخدم داخل بدون www → نحوله لـ www
+  if (host === 'cloyai.com') {
+    return res.redirect(301, 'https://www.cloyai.com' + req.originalUrl);
+  }
+
+  // لو المستخدم داخل ببروتوكول http → نحوله لـ https
+  if (req.headers['x-forwarded-proto'] !== 'https') {
+    return res.redirect(301, 'https://' + host + req.originalUrl);
+  }
+
+  next();
+});
+
 
 // إعدادات عامة
 app.use(express.json());
